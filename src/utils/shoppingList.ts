@@ -155,12 +155,12 @@ export function generateShoppingList(meals: PlannedMeal[], recipes: Recipe[]): S
       if (parts.length < 1) return
 
       const quantityStr = parts[0]
-      const unit = parts.slice(1).join(' ') || 'piece'
+      const unit = parts.slice(1).join(' ') || 'item'
 
       // Convert fractions and mixed numbers to decimals
       const quantity = parseQuantity(quantityStr) * servingMultiplier
 
-      const key = `${ingredientName.toLowerCase()}_${unit}`
+      const key = `${ingredientName.toLowerCase()}_${unit.toLowerCase()}`
       
       if (ingredientMap.has(key)) {
         const existing = ingredientMap.get(key)!
@@ -177,11 +177,13 @@ export function generateShoppingList(meals: PlannedMeal[], recipes: Recipe[]): S
   })
 
   return Array.from(ingredientMap.entries()).map(([key, data]) => {
-    const ingredientName = key.split('_').slice(0, -1).join('_')
+    const parts = key.split('_')
+    const unit = parts[parts.length - 1]
+    const ingredientName = parts.slice(0, -1).join('_')
     return {
       ingredient: ingredientName.replace(/_/g, ' '),
       quantity: formatQuantity(data.quantity),
-      unit: data.unit,
+      unit: unit,
       recipes: [...new Set(data.recipes)] // Remove duplicates
     }
   }).sort((a, b) => a.ingredient.localeCompare(b.ingredient))
