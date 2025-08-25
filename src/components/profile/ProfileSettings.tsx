@@ -44,7 +44,7 @@ export function ProfileSettings() {
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
-      meals_per_day: profile?.meals_per_day || 3
+      meals_per_day: profile?.meals_per_day || 3,
       display_days: profile?.display_days || 7
     }
   })
