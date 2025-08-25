@@ -28,8 +28,14 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
   const [selectedRecipeForDetails, setSelectedRecipeForDetails] = useState<Recipe | null>(null)
   const [showRecipeSelection, setShowRecipeSelection] = useState(false)
   const [selectedMealSlot, setSelectedMealSlot] = useState<{ dayIndex: number; mealType: string } | null>(null)
-  const [displayDays, setDisplayDays] = useState(7)
 
+  const displayDays = profile?.display_days || 7
+
+  const handleDisplayDaysChange = async (newDisplayDays: number) => {
+    if (profile) {
+      await updateProfile({ display_days: newDisplayDays })
+    }
+  }
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeek(prev => addDays(prev, direction === 'next' ? displayDays : -displayDays))
   }
@@ -200,7 +206,7 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
             </label>
             <select
               value={displayDays}
-              onChange={(e) => setDisplayDays(parseInt(e.target.value))}
+              onChange={(e) => handleDisplayDaysChange(parseInt(e.target.value))}
               className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             >
               {[2, 3, 4, 5, 6, 7].map(days => (

@@ -83,6 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           full_name: data.full_name,
           daily_calorie_goal: data.daily_calorie_goal || 2000,
           meals_per_day: data.meals_per_day || 3,
+          display_days: data.display_days || 7,
           created_at: data.created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
           updated_at: data.updated_at?.toDate?.()?.toISOString() || new Date().toISOString()
         })
@@ -96,6 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             full_name: user.displayName || '',
             daily_calorie_goal: 2000,
             meals_per_day: 3,
+            display_days: 7,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }

@@ -32,6 +32,7 @@ export interface Profile {
   full_name: string
   daily_calorie_goal: number
   meals_per_day: number
+  display_days: number
   created_at: string
   updated_at: string
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { format, addDays, startOfWeek } from 'date-fns'
+import { useAuth } from '../contexts/AuthContext'
 import { useRecipes } from '../hooks/useRecipes'
 import { useMealPlans } from '../hooks/useMealPlans'
 import { ShoppingList } from '../components/shopping/ShoppingList'
@@ -9,13 +10,20 @@ import { Button } from '../components/ui/Button'
 import { ShoppingCart, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export function ShoppingView() {
+  const { profile, updateProfile } = useAuth()
   const { recipes } = useRecipes()
   const { getDailyMealPlan } = useMealPlans()
   
   // State for date selection
   const [startDate, setStartDate] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
-  const [numberOfDays, setNumberOfDays] = useState(7)
 
+  const numberOfDays = profile?.display_days || 7
+
+  const handleNumberOfDaysChange = async (newNumberOfDays: number) => {
+    if (profile) {
+      await updateProfile({ display_days: newNumberOfDays })
+    }
+  }
   // Generate array of dates for the selected period
   const selectedDates = useMemo(() => {
     return Array.from({ length: numberOfDays }, (_, i) => addDays(startDate, i))
@@ -78,7 +86,7 @@ export function ShoppingView() {
               </label>
               <select
                 value={numberOfDays}
-                onChange={(e) => setNumberOfDays(parseInt(e.target.value))}
+                onChange={(e) => handleNumberOfDaysChange(parseInt(e.target.value))}
                 className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               >
                 {[2, 3, 4, 5, 6, 7].map(days => (
