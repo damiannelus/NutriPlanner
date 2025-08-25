@@ -150,12 +150,39 @@ export function generateShoppingList(meals: PlannedMeal[], recipes: Recipe[]): S
       const sizeStr = (ingredient.size || '').trim()
       const ingredientName = (ingredient.ingredient || '').trim()
       
-      // Extract quantity and unit from size (e.g., "2 cups" or "1 lb")
-      const parts = sizeStr.split(' ')
-      if (parts.length < 1) return
-
-      const quantityStr = parts[0]
-      const unit = parts.slice(1).join(' ') || 'item'
+      // Extract quantity and unit from size (e.g., "2 cups", "75g", "1 lb")
+      let quantityStr = ''
+      let unit = 'item'
+      
+      if (sizeStr) {
+        // Handle cases like "75g" where unit is attached to number
+        const match = sizeStr.match(/^(\d+(?:\.\d+)?(?:\/\d+)?(?:-\d+(?:\/\d+)?)?)\s*([a-zA-Z]+)?\s*(.*)$/)
+        if (match) {
+          quantityStr = match[1]
+          const unitPart = match[2] || ''
+          const remainingPart = match[3] || ''
+          
+          if (unitPart) {
+            unit = unitPart
+          } else if (remainingPart) {
+            // Handle cases like "2 cups" where unit is separate
+            const spaceParts = sizeStr.split(' ')
+            if (spaceParts.length > 1) {
+              quantityStr = spaceParts[0]
+              unit = spaceParts.slice(1).join(' ')
+            }
+          }
+        } else {
+          // Fallback: try splitting by space
+          const parts = sizeStr.split(' ')
+          if (parts.length >= 1) {
+            quantityStr = parts[0]
+            unit = parts.slice(1).join(' ') || 'item'
+          }
+        }
+      }
+      
+      if (!quantityStr) return
 
       // Convert fractions and mixed numbers to decimals
       const quantity = parseQuantity(quantityStr) * servingMultiplier
