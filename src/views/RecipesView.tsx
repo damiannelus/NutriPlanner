@@ -76,8 +76,8 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
 
   // Filter recipes
   const filteredRecipes = recipes.filter(recipe => {
-    const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         recipe.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = (recipe.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (recipe.description || '').toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesFavorites = !showFavoritesOnly || recipe.is_favorite
     
