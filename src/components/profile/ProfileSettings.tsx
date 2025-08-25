@@ -121,7 +121,7 @@ export function ProfileSettings() {
               max: { value: 5, message: 'Maximum 5 meals' }
             })}
             error={errors.meals_per_day?.message}
-            helperText="Choose 3-5 meals per day (3: B/L/D, 4: B/2nd B/L/D, 5: B/2nd B/L/D/S)"
+            helperText="Choose 3-5 meals per day"
           />
 
           {/* Meal Calorie Distribution Display */}
