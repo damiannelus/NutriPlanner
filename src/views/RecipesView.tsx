@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { format, startOfWeek } from 'date-fns'
 import { motion } from 'framer-motion'
-import { Plus, Search, Filter, Heart } from 'lucide-react'
+import { Plus, Search, Filter, Heart, Loader2 } from 'lucide-react'
 import { useRecipes } from '../hooks/useRecipes'
 import { Recipe } from '../types'
 import { Button } from '../components/ui/Button'
@@ -36,8 +36,19 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
   const [selectedRecipeForDetails, setSelectedRecipeForDetails] = useState<Recipe | null>(null)
   const [sortBy, setSortBy] = useState<'name' | 'calories' | 'protein' | 'carbs' | 'fat'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [isFiltering, setIsFiltering] = useState(false)
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
+
+  // Add loading state for filtering
+  useEffect(() => {
+    setIsFiltering(true)
+    const timer = setTimeout(() => {
+      setIsFiltering(false)
+    }, 100) // Small delay to show loading state
+
+    return () => clearTimeout(timer)
+  }, [searchTerm, showFavoritesOnly, selectedTags, minPrepTime, maxPrepTime, minCalories, maxCalories, minServings, maxServings, sortBy, sortOrder])
 
   // Get all unique tags
   const allTags = Array.from(
@@ -76,8 +87,8 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
 
   // Filter recipes
   const filteredRecipes = recipes.filter(recipe => {
-    const matchesSearch = recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         recipe.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = (recipe.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (recipe.description || '').toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesFavorites = !showFavoritesOnly || recipe.is_favorite
     
@@ -360,7 +371,16 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
       </Card>
 
       {/* Recipes Grid */}
-      {sortedRecipes.length === 0 ? (
+      {loading || isFiltering ? (
+        <Card className="p-12 text-center">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-4" />
+            <p className="text-gray-600">
+              {loading ? 'Loading recipes...' : 'Filtering recipes...'}
+            </p>
+          </div>
+        </Card>
+      ) : sortedRecipes.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="max-w-sm mx-auto">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
