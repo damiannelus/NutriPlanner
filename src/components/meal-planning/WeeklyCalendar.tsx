@@ -39,7 +39,7 @@ export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPl
         { id: 'brunch', label: 'Brunch' },
         { id: 'lunch', label: 'Lunch' },
         { id: 'dinner', label: 'Dinner' },
-        { id: 'afternoon_snack', label: 'Afternoon snack' }
+        { id: 'afternoon_snack', label: 'Snack' }
       ]
     } as const
 

@@ -29,7 +29,7 @@ const MEAL_DISTRIBUTIONS = {
     { name: 'Breakfast', percentage: 20 },
     { name: 'Brunch', percentage: 20 },
     { name: 'Lunch', percentage: 30 },
-    { name: 'Afternoon Snack', percentage: 10 },
+    { name: 'Snack', percentage: 10 },
     { name: 'Dinner', percentage: 20 }
   ]
 } as const

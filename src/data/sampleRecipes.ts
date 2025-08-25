@@ -1,5 +1,218 @@
 export const sampleRecipes = [
   {
+  "name": "Łosoś z ryżem i sałatką z ogórka",
+  "description": "Nie masz pomysłu na oryginalnie przyrządzoną rybę? Nasz łosoś z ryżem i sałatką z ogórka jest właśnie dla\nCiebie! Ta pyszna propozycja obiadu zawiera odwołania do niezwykle lubianej w Polsce kuchni azjatyckiej,\npoprzez połączenie miodu z sosem sojowym, imbirem i sosem rybnym. Jest to świetna propozycja na posiłek\ndla członków najbliższej rodziny, a także zaproszonych gości, jej smak jest bowiem gwarancją udanego obiadu.\nSpróbuj koniecznie!",
+  "servings": "2",
+  "prep_time": "5 min",
+  "cook_time": "25 min",
+  "total_time": null,
+  "tags": [
+    "Bez laktozy",
+    "Bez produktów mlecznych",
+    "Dla dzieci",
+    "Dla kobiet w ciąży",
+    "Respo"
+  ],
+  "ingredients": [
+    {
+      "ingredient": "ryżu basmati",
+      "size": "100 g"
+    },
+    {
+      "ingredient": "łososia świeżego",
+      "size": "200 g"
+    },
+    {
+      "ingredient": "cytryny",
+      "size": "1 sztuka"
+    },
+    {
+      "ingredient": "imbiru",
+      "size": "80 g"
+    },
+    {
+      "ingredient": "sosu sojowego",
+      "size": "1 łyżka"
+    },
+    {
+      "ingredient": "ogórka",
+      "size": "2 sztuki"
+    },
+    {
+      "ingredient": "nasion sezamu",
+      "size": "2 łyżeczki"
+    },
+    {
+      "ingredient": "sosu rybnego",
+      "size": "1 łyżka"
+    },
+    {
+      "ingredient": "miodu",
+      "size": "2 łyżeczki"
+    }
+  ],
+  "directions": [
+    {
+      "step_description": "Ryż gotujemy według instrukcji podanej na opakowaniu."
+    },
+    {
+      "step_description": "Łososia oczyszczamy z ości i usuwamy skórę, doprawiamy solą i sokiem z cytryny wraz z\ndrobno startą skórką."
+    },
+    {
+      "step_description": "Zamarynowanego łososia pieczemy w temp 180 stopni, tryb góra-dół przez około 10 min."
+    },
+    {
+      "step_description": "Przygotowujemy sos imbirowo-sojowy: do startego imbiru dodajemy sos sojowy, sok z\ncytryny, prażone nasiona sezamu, sos rybny i miód. Wszystko razem mieszamy i\nodstawiamy, aby składniki się połączyły."
+    },
+    {
+      "step_description": "Przygotowujemy sałatkę z ogórka: Ogórka kroimy w cienkie plastry, dodajemy sos,\nmieszamy i odstawiamy na chwilę, aby składniki oddały smak."
+    },
+    {
+      "step_description": "Ugotowany ryż, łososia i sałatkę z ogórka przekładamy na talerz. Smacznego!"
+    }
+  ],
+  "nutrition_facts": {
+    "protein": "26g",
+    "fat": "17 g",
+    "carbs": "60 g",
+    "calories": "501"
+  }
+},
+{
+  "name": "Pieczony ser typu feta z makaronem",
+  "description": "Pieczony ser typu feta z makaronem – z pewnością „obił Ci się o uszy” ten przepis, ponieważ swego czasu robił ogromną furorę w Internecie. I wcale się nie dziwmy – przygotowanie tego dania jest banalnie proste i szybkie, a potrawa sama w sobie jest przepyszna. Połączenie pomidorków, czosnku, ziół i sera feta to klasyczna, ale efektywna kombinacja smakowa. Wystarczy wszystkie składniki zapiec, rozgnieść widelcem i wymieszać z ugotowanym makaronem. Oprócz smaku, danie zachwycać może wartościami odżywczymi – antyoksydanty, likopen, błonnik pokarmowy, białko i wapń… Koniecznie wypróbuj ten internetowy klasyk, smacznego!",
+  "servings": 3,
+  "prep_time": 10,
+  "cook_time": null,
+  "total_time": 40,
+  "tags": [
+    "Bez cukru",
+    "Szybkie przygotowanie",
+    "Respo"
+  ],
+  "ingredients": [
+    {
+      "ingredient": "makaronu",
+      "size": "200 g"
+    },
+    {
+      "ingredient": "sera typu feta",
+      "size": "1 sztuka (200 g)"
+    },
+    {
+      "ingredient": "pomidorków koktajlowych",
+      "size": "25 sztuk (500 g)"
+    },
+    {
+      "ingredient": "oliwy z oliwek",
+      "size": "6 łyżeczek (30 g)"
+    },
+    {
+      "ingredient": "czosnku",
+      "size": "3 ząbki (18 g)"
+    },
+    {
+      "ingredient": "ziół prowansalskich",
+      "size": "1 łyżeczka (3 g)"
+    }
+  ],
+  "directions": [
+    {
+      "step_description": "Piekarnik rozgrzewamy do 190 stopni, tryb góra-dół."
+    },
+    {
+      "step_description": "Pomidorki myjemy, przekrawamy na pół, czosnek zostawiamy w ząbkach."
+    },
+    {
+      "step_description": "W naczyniu żaroodpornym układamy pomidorki i czosnek. Skrapiamy oliwą, posypujemy ziołami, delikatnie mieszamy. Na środku układamy ser feta."
+    },
+    {
+      "step_description": "Pieczemy 30 minut, aż pomidorki się zrumienią, a ser lekko się przyrumieni z wierzchu."
+    },
+    {
+      "step_description": "W międzyczasie gotujemy makaron al dente bez dodatku soli. Odcedzamy, zostawiając 2–3 łyżki wody z gotowania."
+    },
+    {
+      "step_description": "Po upieczeniu wszystko delikatnie mieszamy. Możemy częściowo rozgnieść widelcem, ale nie blendujemy. Dodajemy makaron i odrobinę wody z gotowania. Doprawiamy świeżo mielonym pieprzem i – jeśli trzeba – solą."
+    }
+  ],
+  "nutrition_facts": {
+    "protein": "22 g",
+    "fat": "23 g",
+    "carbs": "51 g",
+    "calories": "517"
+  }
+},
+  {
+  "name": "Jajecznica z cukinią",
+  "description": "Jajka to jeden z ulubionych śniadaniowych produktów większości z nas. Szukasz ciekawego przepisu na ich przygotowanie? Jesteś w dobrym miejscu! Nasza jajecznica z cukinią łączy w sobie klasykę ze zdrowiem — a wszystko dzięki dodatkowi zielonej cukinii. Warzywo to jest świetnym źródłem folianów, beta-karotenu i witaminy K, a jego smak perfekcyjnie komponuje się z jajkiem. Smacznego!",
+  "servings": null,
+  "prep_time": "5 min",
+  "cook_time": null,
+  "total_time": "15 min",
+  "tags": [
+    "Bez cukru",
+    "Bez laktozy",
+    "Bez produktów mlecznych",
+    "Dla dzieci",
+    "Dla kobiet w ciąży",
+    "Dobre na cholesterol",
+    "Low glycemic index",
+    "Szybkie przygotowanie",
+    "Respo"
+  ],
+  "ingredients": [
+    {
+      "ingredient": "jajka",
+      "size": "2 sztuki (112 g)"
+    },
+    {
+      "ingredient": "oleju rzepakowego",
+      "size": "1 łyżeczka (5 g)"
+    },
+    {
+      "ingredient": "cukinii",
+      "size": "0,5 sztuki (100 g)"
+    },
+    {
+      "ingredient": "chleba żytniego razowego",
+      "size": "2 kromki (60 g)"
+    },
+    {
+      "ingredient": "szczypiorku",
+      "size": "1 łyżeczka (5 g)"
+    },
+    {
+      "ingredient": "soli",
+      "size": "1 szczypta (0,25 g)"
+    },
+    {
+      "ingredient": "pieprzu",
+      "size": "1 szczypta (0,25 g)"
+    }
+  ],
+  "directions": [
+    {
+      "step_description": "Cukinię kroimy w plasterki, plasterki na połówki lub na ćwiartki."
+    },
+    {
+      "step_description": "Na patelni rozgrzewamy olej, smażymy cukinię, aż zmięknie."
+    },
+    {
+      "step_description": "Zmniejszamy ogień, dodajemy jajka, sól i pieprz."
+    },
+    {
+      "step_description": "Gotową jajecznicę posypujemy szczypiorkiem, podajemy z pieczywem."
+    }
+  ],
+  "nutrition_facts": {
+    "protein": "19 g",
+    "fat": "17 g",
+    "carbs": "35 g",
+    "calories": "357"
+  }
+},
+  {
   "name": "Racuszki drożdżowe z jabłkami",
   "description": null,
   "servings": "4 porcje",
