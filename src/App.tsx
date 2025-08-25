@@ -22,6 +22,49 @@ function AppContent() {
   const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [mealPlan, setMealPlan] = useState<WeeklyMealPlan>({})
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only trigger shortcuts if not typing in an input field
+      if (event.target instanceof HTMLInputElement || 
+          event.target instanceof HTMLTextAreaElement || 
+          event.target instanceof HTMLSelectElement) {
+        return
+      }
+
+      // Prevent shortcuts when modals or forms are open
+      if (document.querySelector('[role="dialog"]') || 
+          document.querySelector('.modal') ||
+          selectedMealSlot) {
+        return
+      }
+
+      const key = event.key.toLowerCase()
+      
+      switch (key) {
+        case 'r':
+          setCurrentView('recipes')
+          event.preventDefault()
+          break
+        case 'm':
+          setCurrentView('meal-planning')
+          event.preventDefault()
+          break
+        case 's':
+          setCurrentView('shopping')
+          event.preventDefault()
+          break
+        case 'p':
+          setCurrentView('profile')
+          event.preventDefault()
+          break
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+    return () => document.removeEventListener('keydown', handleKeyPress)
+  }, [selectedMealSlot])
+
   // Load meal plan for current week when week changes or data loads
   useEffect(() => {
     if (!mealPlansLoading && user && getMealPlanForWeek) {

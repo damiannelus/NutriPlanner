@@ -23,10 +23,10 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
   const { user, profile, signOut } = useAuth()
 
   const navigationItems = [
-    { id: 'recipes', label: 'Recipes', icon: BookOpen },
-    { id: 'meal-planning', label: 'Meal Planning', icon: Calendar },
-    { id: 'shopping', label: 'Shopping List', icon: ShoppingCart },
-    { id: 'profile', label: 'Profile', icon: Settings },
+    { id: 'recipes', label: 'Recipes', icon: BookOpen, shortcut: 'R' },
+    { id: 'meal-planning', label: 'Meal Planning', icon: Calendar, shortcut: 'M' },
+    { id: 'shopping', label: 'Shopping List', icon: ShoppingCart, shortcut: 'S' },
+    { id: 'profile', label: 'Profile', icon: Settings, shortcut: 'P' },
   ]
 
   const handleSignOut = async () => {
@@ -52,7 +52,12 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
       `}
     >
       <item.icon className="h-5 w-5" />
-      <span>{item.label}</span>
+      <div className="flex items-center justify-between flex-1">
+        <span>{item.label}</span>
+        <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-mono">
+          {item.shortcut}
+        </span>
+      </div>
     </button>
   )
 
