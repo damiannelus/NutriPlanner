@@ -22,7 +22,7 @@ interface MealPlanningViewProps {
 }
 
 export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurrentWeek, onSelectMealSlot, onViewChange }: MealPlanningViewProps) {
-  const { profile } = useAuth()
+  const { profile, updateProfile } = useAuth()
   const { recipes } = useRecipes()
   const { saveMealPlan, clearWeeklyMealPlan } = useMealPlans()
   const [selectedRecipeForDetails, setSelectedRecipeForDetails] = useState<Recipe | null>(null)
