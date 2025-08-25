@@ -7,10 +7,10 @@ export interface GeneratedMeal {
 
 export interface DailyMealPlan {
   breakfast?: GeneratedMeal
-  second_breakfast?: GeneratedMeal
+  brunch?: GeneratedMeal
   lunch?: GeneratedMeal
+  afternoon_snack?: GeneratedMeal
   dinner?: GeneratedMeal
-  snack?: GeneratedMeal
 }
 
 export interface WeeklyMealPlan {
@@ -108,8 +108,8 @@ function generateDailyMealPlan(
 function getMealTypesForCount(mealsPerDay: number): string[] {
   const mealConfigs = {
     3: ['breakfast', 'lunch', 'dinner'],
-    4: ['breakfast', 'second_breakfast', 'lunch', 'dinner'],
-    5: ['breakfast', 'second_breakfast', 'lunch', 'dinner', 'snack']
+    4: ['breakfast', 'brunch', 'lunch', 'dinner'],
+    5: ['breakfast', 'brunch', 'lunch', 'afternoon_snack', 'dinner']
   } as const
 
   return mealConfigs[mealsPerDay as keyof typeof mealConfigs] || mealConfigs[3]

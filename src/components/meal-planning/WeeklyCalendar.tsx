@@ -30,16 +30,16 @@ export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPl
       ],
       4: [
         { id: 'breakfast', label: 'Breakfast' },
-        { id: 'second_breakfast', label: '2nd Breakfast' },
+        { id: 'brunch', label: 'Brunch' },
         { id: 'lunch', label: 'Lunch' },
         { id: 'dinner', label: 'Dinner' }
       ],
       5: [
         { id: 'breakfast', label: 'Breakfast' },
-        { id: 'second_breakfast', label: '2nd Breakfast' },
+        { id: 'brunch', label: 'Brunch' },
         { id: 'lunch', label: 'Lunch' },
         { id: 'dinner', label: 'Dinner' },
-        { id: 'snack', label: 'Snack' }
+        { id: 'afternoon_snack', label: 'Afternoon snack' }
       ]
     } as const
 

@@ -50,7 +50,7 @@ export interface PlannedMeal {
   id: string
   recipe_id: string
   day: number // 0-6 (Sunday-Saturday)
-  meal_type: 'breakfast' | 'second_breakfast' | 'lunch' | 'dinner' | 'snack'
+  meal_type: 'breakfast' | 'brunch' | 'lunch' | 'afternoon_snack' | 'dinner'
   servings: number
   recipe?: Recipe
 }
