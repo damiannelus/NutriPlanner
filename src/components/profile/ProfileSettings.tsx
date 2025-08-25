@@ -10,6 +10,7 @@ interface ProfileFormData {
   full_name: string
   daily_calorie_goal: number
   meals_per_day: number
+  display_days: number
 }
 
 // Meal calorie distribution by meals per day
@@ -43,7 +44,8 @@ export function ProfileSettings() {
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
-      meals_per_day: profile?.meals_per_day || 3
+      meals_per_day: profile?.meals_per_day || 3,
+      display_days: profile?.display_days || 7
     }
   })
 
@@ -122,6 +124,18 @@ export function ProfileSettings() {
             })}
             error={errors.meals_per_day?.message}
             helperText="Choose 3-5 meals per day"
+          />
+
+          <Input
+            label="Display Days"
+            type="number"
+            {...register('display_days', { 
+              required: 'Display days is required',
+              min: { value: 2, message: 'Minimum 2 days' },
+              max: { value: 7, message: 'Maximum 7 days' }
+            })}
+            error={errors.display_days?.message}
+            helperText="Choose 2-7 days to display in meal planning and shopping list"
           />
 
           {/* Meal Calorie Distribution Display */}
