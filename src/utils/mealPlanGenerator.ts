@@ -1,5 +1,27 @@
 import { Recipe, Profile } from '../types'
 
+// Meal calorie distribution by meals per day
+const MEAL_DISTRIBUTIONS = {
+  3: {
+    breakfast: 30,
+    lunch: 40,
+    dinner: 30
+  },
+  4: {
+    breakfast: 20,
+    brunch: 15,
+    lunch: 35,
+    dinner: 30
+  },
+  5: {
+    breakfast: 20,
+    brunch: 20,
+    lunch: 30,
+    afternoon_snack: 10,
+    dinner: 20
+  }
+} as const
+
 export interface GeneratedMeal {
   recipe: Recipe
   servings: number
@@ -28,6 +50,7 @@ export function generateWeeklyMealPlan(
   const { daily_calorie_goal, meals_per_day } = profile
   
   const mealTypes = getMealTypesForCount(meals_per_day)
+  const mealDistribution = MEAL_DISTRIBUTIONS[meals_per_day as keyof typeof MEAL_DISTRIBUTIONS] || MEAL_DISTRIBUTIONS[3]
   const weeklyPlan: WeeklyMealPlan = {}
   const usedRecipesToday = new Set<string>()
 
@@ -37,6 +60,7 @@ export function generateWeeklyMealPlan(
     weeklyPlan[day.toString()] = generateDailyMealPlan(
       recipes, 
       daily_calorie_goal, 
+      mealDistribution,
       mealTypes, 
       usedRecipesToday
     )
@@ -48,6 +72,7 @@ export function generateWeeklyMealPlan(
 function generateDailyMealPlan(
   recipes: Recipe[],
   targetCalories: number,
+  mealDistribution: Record<string, number>,
   mealTypes: string[],
   usedRecipesToday: Set<string>
 ): DailyMealPlan {
@@ -62,9 +87,9 @@ function generateDailyMealPlan(
     
     // Generate meals for each meal type
     for (const mealType of mealTypes) {
-      const remainingMeals = mealTypes.length - Object.keys(dailyPlan).length
-      const remainingCalories = targetCalories - totalCalories
-      const targetMealCalories = remainingMeals > 0 ? remainingCalories / remainingMeals : 0
+      // Calculate target calories for this specific meal type
+      const mealPercentage = mealDistribution[mealType] || (100 / mealTypes.length)
+      const targetMealCalories = Math.round((targetCalories * mealPercentage) / 100)
       
       const meal = generateMealForSlot(
         recipes, 
@@ -93,9 +118,10 @@ function generateDailyMealPlan(
   // If we couldn't hit the target after max attempts, return the last attempt
   // This ensures we always return something even if it's not perfect
   const fallbackPlan: DailyMealPlan = {}
-  const caloriesPerMeal = Math.floor(targetCalories / mealTypes.length)
   
   for (const mealType of mealTypes) {
+    const mealPercentage = mealDistribution[mealType] || (100 / mealTypes.length)
+    const caloriesPerMeal = Math.round((targetCalories * mealPercentage) / 100)
     const meal = generateMealForSlot(recipes, caloriesPerMeal, mealType, usedRecipesToday)
     if (meal) {
       fallbackPlan[mealType as keyof DailyMealPlan] = meal
