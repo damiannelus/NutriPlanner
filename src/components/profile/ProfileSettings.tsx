@@ -12,18 +12,44 @@ interface ProfileFormData {
   meals_per_day: number
 }
 
+// Meal calorie distribution by meals per day
+const MEAL_DISTRIBUTIONS = {
+  3: [
+    { name: 'Breakfast', percentage: 30 },
+    { name: 'Lunch', percentage: 40 },
+    { name: 'Dinner', percentage: 30 }
+  ],
+  4: [
+    { name: 'Breakfast', percentage: 20 },
+    { name: 'Brunch', percentage: 15 },
+    { name: 'Lunch', percentage: 35 },
+    { name: 'Dinner', percentage: 30 }
+  ],
+  5: [
+    { name: 'Breakfast', percentage: 20 },
+    { name: 'Brunch', percentage: 20 },
+    { name: 'Lunch', percentage: 30 },
+    { name: 'Afternoon Snack', percentage: 10 },
+    { name: 'Dinner', percentage: 20 }
+  ]
+} as const
+
 export function ProfileSettings() {
   const { profile, updateProfile, user } = useAuth()
   const [isPopulating, setIsPopulating] = useState(false)
   const [populateMessage, setPopulateMessage] = useState('')
   
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
       meals_per_day: profile?.meals_per_day || 3
     }
   })
+
+  // Watch the meals_per_day and daily_calorie_goal values for real-time updates
+  const watchedMealsPerDay = watch('meals_per_day')
+  const watchedCalorieGoal = watch('daily_calorie_goal')
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -98,6 +124,32 @@ export function ProfileSettings() {
             helperText="Choose 3-5 meals per day (3: B/L/D, 4: B/2nd B/L/D, 5: B/2nd B/L/D/S)"
           />
 
+          {/* Meal Calorie Distribution Display */}
+          {watchedMealsPerDay && MEAL_DISTRIBUTIONS[watchedMealsPerDay as keyof typeof MEAL_DISTRIBUTIONS] && (
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-3">Daily Calorie Distribution</h4>
+              <div className="space-y-2">
+                {MEAL_DISTRIBUTIONS[watchedMealsPerDay as keyof typeof MEAL_DISTRIBUTIONS].map((meal) => {
+                  const calories = Math.round((watchedCalorieGoal || 2000) * (meal.percentage / 100))
+                  return (
+                    <div key={meal.name} className="flex justify-between items-center">
+                      <span className="text-blue-800 font-medium">{meal.name}</span>
+                      <div className="text-right">
+                        <span className="text-blue-900 font-semibold">{meal.percentage}%</span>
+                        <span className="text-blue-700 text-sm ml-2">({calories} cal)</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="flex justify-between items-center font-semibold">
+                  <span className="text-blue-900">Total</span>
+                  <span className="text-blue-900">{watchedCalorieGoal || 2000} calories</span>
+                </div>
+              </div>
+            </div>
+          )}
           <Button type="submit">
             Save Changes
           </Button>
