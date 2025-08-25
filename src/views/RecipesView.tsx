@@ -37,8 +37,37 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
   const [sortBy, setSortBy] = useState<'name' | 'calories' | 'protein' | 'carbs' | 'fat'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [isFiltering, setIsFiltering] = useState(false)
+  const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null)
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
+
+  // Add keyboard shortcut for focusing search
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only trigger shortcut if not typing in an input field
+      if (event.target instanceof HTMLInputElement || 
+          event.target instanceof HTMLTextAreaElement || 
+          event.target instanceof HTMLSelectElement) {
+        return
+      }
+
+      // Prevent shortcut when modals or forms are open
+      if (document.querySelector('[role="dialog"]') || 
+          document.querySelector('.modal') ||
+          isFormOpen ||
+          selectedRecipeForDetails) {
+        return
+      }
+
+      if (event.key.toLowerCase() === 'f') {
+        event.preventDefault()
+        searchInputRef?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+    return () => document.removeEventListener('keydown', handleKeyPress)
+  }, [searchInputRef, isFormOpen, selectedRecipeForDetails])
 
   // Add loading state for filtering
   useEffect(() => {
@@ -229,6 +258,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
+              ref={setSearchInputRef}
               placeholder="Search recipes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
