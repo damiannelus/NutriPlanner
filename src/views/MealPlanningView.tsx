@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format, startOfWeek, addDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Sparkles, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, Trash2, Plus } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useRecipes } from '../hooks/useRecipes'
 import { useMealPlans } from '../hooks/useMealPlans'
@@ -38,6 +38,66 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
   }
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeek(prev => addDays(prev, direction === 'next' ? displayDays : -displayDays))
+  }
+
+  // Check if all meal slots are filled for the displayed days
+  const areAllSlotsFilled = () => {
+    const mealTypes = getMealTypesForCount(profile?.meals_per_day || 3)
+    
+    for (let dayIndex = 0; dayIndex < displayDays; dayIndex++) {
+      const dayPlan = mealPlan[dayIndex.toString()]
+      for (const mealType of mealTypes) {
+        if (!dayPlan?.[mealType]) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+
+  // Get meal types based on meals per day setting
+  const getMealTypesForCount = (mealsPerDay: number): string[] => {
+    const mealConfigs = {
+      3: ['breakfast', 'lunch', 'dinner'],
+      4: ['breakfast', 'brunch', 'lunch', 'dinner'],
+      5: ['breakfast', 'brunch', 'lunch', 'afternoon_snack', 'dinner']
+    } as const
+
+    return mealConfigs[mealsPerDay as keyof typeof mealConfigs] || mealConfigs[3]
+  }
+
+  const fillEmptySlots = async () => {
+    if (!profile || recipes.length === 0) return
+    
+    console.log('MealPlanningView: Filling empty slots for', displayDays, 'days')
+    
+    const mealTypes = getMealTypesForCount(profile.meals_per_day)
+    const updatedMealPlan = { ...mealPlan }
+    
+    // Generate meals only for empty slots
+    for (let dayIndex = 0; dayIndex < displayDays; dayIndex++) {
+      const dayKey = dayIndex.toString()
+      if (!updatedMealPlan[dayKey]) {
+        updatedMealPlan[dayKey] = {}
+      }
+      
+      for (const mealType of mealTypes) {
+        // Only fill if slot is empty
+        if (!updatedMealPlan[dayKey][mealType]) {
+          // Generate a single meal plan and take the first day's meal for this type
+          const fullWeekPlan = generateWeeklyMealPlan(recipes, profile)
+          const generatedMeal = fullWeekPlan['0']?.[mealType]
+          
+          if (generatedMeal) {
+            updatedMealPlan[dayKey][mealType] = generatedMeal
+          }
+        }
+      }
+    }
+    
+    console.log('MealPlanningView: Filled empty slots, total meals now:', 
+      Object.values(updatedMealPlan).reduce((total, day) => total + Object.keys(day).length, 0))
+    setMealPlan(updatedMealPlan)
   }
 
   const generateMealPlan = async () => {
@@ -185,6 +245,14 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
           <Button onClick={generateMealPlan} disabled={recipes.length === 0}>
             <Sparkles className="h-4 w-4 mr-2" />
             Generate Meal Plan
+          </Button>
+          <Button 
+            onClick={fillEmptySlots} 
+            disabled={recipes.length === 0 || areAllSlotsFilled()}
+            variant="secondary"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Fill Empty Slots
           </Button>
           <Button 
             onClick={clearMealPlan} 
