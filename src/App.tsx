@@ -8,7 +8,7 @@ import { ShoppingView } from './views/ShoppingView'
 import { ProfileSettings } from './components/profile/ProfileSettings'
 import { WeeklyMealPlan } from './utils/mealPlanGenerator'
 import { useMealPlans } from './hooks/useMealPlans'
-import { format, startOfWeek } from 'date-fns'
+import { format, startOfWeek, isSameDay } from 'date-fns'
 
 function AppContent() {
   const { user, loading } = useAuth()
@@ -21,6 +21,7 @@ function AppContent() {
   
   const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [mealPlan, setMealPlan] = useState<WeeklyMealPlan>({})
+  const [globalStartDate, setGlobalStartDate] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -75,6 +76,13 @@ function AppContent() {
       setMealPlan(loadedPlan)
     }
   }, [currentWeek, mealPlansLoading, getMealPlanForWeek, user])
+
+  // Sync currentWeek with globalStartDate
+  useEffect(() => {
+    if (!isSameDay(currentWeek, globalStartDate)) {
+      setCurrentWeek(globalStartDate)
+    }
+  }, [globalStartDate, currentWeek])
 
   // Save meal plan to Firebase (called when meal plan is updated)
   const saveMealPlanToFirebase = useCallback(async (newMealPlan: WeeklyMealPlan) => {
@@ -157,12 +165,20 @@ function AppContent() {
             setMealPlan={updateMealPlan}
             currentWeek={currentWeek}
             setCurrentWeek={setCurrentWeek}
+            globalStartDate={globalStartDate}
+            setGlobalStartDate={setGlobalStartDate}
             onSelectMealSlot={setSelectedMealSlot}
             onViewChange={setCurrentView}
           />
         )
       case 'shopping':
-        return <ShoppingView mealPlan={mealPlan} />
+        return (
+          <ShoppingView 
+            mealPlan={mealPlan}
+            globalStartDate={globalStartDate}
+            setGlobalStartDate={setGlobalStartDate}
+          />
+        )
       case 'profile':
         return <ProfileSettings />
       default:

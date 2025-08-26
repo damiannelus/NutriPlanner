@@ -9,13 +9,18 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { ShoppingCart, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 
-export function ShoppingView() {
+interface ShoppingViewProps {
+  globalStartDate: Date
+  setGlobalStartDate: (date: Date) => void
+}
+
+export function ShoppingView({ globalStartDate, setGlobalStartDate }: ShoppingViewProps) {
   const { profile, updateProfile } = useAuth()
   const { recipes } = useRecipes()
   const { getDailyMealPlan } = useMealPlans()
   
-  // State for date selection
-  const [startDate, setStartDate] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
+  // Use global start date instead of local state
+  const startDate = globalStartDate
 
   const numberOfDays = profile?.display_days || 7
 
@@ -57,7 +62,7 @@ export function ShoppingView() {
   const hasMealPlan = plannedMeals.length > 0
 
   const navigatePeriod = (direction: 'prev' | 'next') => {
-    setStartDate(prev => addDays(prev, direction === 'next' ? numberOfDays : -numberOfDays))
+    setGlobalStartDate(prev => addDays(prev, direction === 'next' ? numberOfDays : -numberOfDays))
   }
 
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -87,7 +92,7 @@ export function ShoppingView() {
               <input
                 type="date"
                 value={format(startDate, 'yyyy-MM-dd')}
-                onChange={(e) => setStartDate(new Date(e.target.value))}
+                onChange={(e) => setGlobalStartDate(new Date(e.target.value))}
                 className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
               <label className="text-sm font-medium text-gray-700">

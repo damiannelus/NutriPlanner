@@ -17,11 +17,13 @@ interface MealPlanningViewProps {
   setMealPlan: (plan: WeeklyMealPlan | ((prev: WeeklyMealPlan) => WeeklyMealPlan)) => void
   currentWeek: Date
   setCurrentWeek: (week: Date) => void
+  globalStartDate: Date
+  setGlobalStartDate: (date: Date) => void
   onSelectMealSlot: (slot: { dayIndex: number; mealType: string } | null) => void
   onViewChange: (view: string) => void
 }
 
-export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurrentWeek, onSelectMealSlot, onViewChange }: MealPlanningViewProps) {
+export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurrentWeek, globalStartDate, setGlobalStartDate, onSelectMealSlot, onViewChange }: MealPlanningViewProps) {
   const { profile, updateProfile } = useAuth()
   const { recipes } = useRecipes()
   const { saveMealPlan, clearWeeklyMealPlan } = useMealPlans()
@@ -275,8 +277,8 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
               </label>
               <input
                 type="date"
-                value={format(currentWeek, 'yyyy-MM-dd')}
-                onChange={(e) => setCurrentWeek(new Date(e.target.value))}
+                value={format(globalStartDate, 'yyyy-MM-dd')}
+                onChange={(e) => setGlobalStartDate(new Date(e.target.value))}
                 className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
