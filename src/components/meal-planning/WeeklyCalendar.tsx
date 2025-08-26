@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { format, addDays } from 'date-fns'
-import { Plus, Clock, Users } from 'lucide-react'
+import { Plus, Clock, Users, RefreshCw } from 'lucide-react'
 import { WeeklyMealPlan } from '../../utils/mealPlanGenerator'
 import { Recipe } from '../../types'
 import { Card } from '../ui/Card'
@@ -197,14 +197,25 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick }: MealSl
     onMealSlotClick?.(dayIndex, mealType.id, undefined)
   }
 
+  const handleSwapRecipe = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onMealSlotClick?.(dayIndex, mealType.id, undefined)
+  }
   if (meal) {
     const totalCalories = Math.round(parseInt(meal.recipe.nutrition_facts.calories) * meal.servings)
     
     return (
       <Card 
-        className="h-20 p-2 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer"
+        className="h-20 p-2 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer group relative"
         onClick={() => onMealSlotClick?.(dayIndex, mealType.id, meal.recipe)}
       >
+        <button
+          onClick={handleSwapRecipe}
+          className="absolute top-1 right-1 p-1 rounded-full bg-white shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 z-10"
+          title="Swap recipe"
+        >
+          <RefreshCw className="h-3 w-3 text-gray-600" />
+        </button>
         <div className="h-full flex flex-col justify-between">
           <div className="flex-1 min-h-0">
             <h4 className="font-medium text-gray-900 text-xs leading-tight truncate">
