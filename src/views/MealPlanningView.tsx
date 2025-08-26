@@ -269,6 +269,17 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Start date:
+              </label>
+              <input
+                type="date"
+                value={format(currentWeek, 'yyyy-MM-dd')}
+                onChange={(e) => setCurrentWeek(new Date(e.target.value))}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+            </div>
             <label className="text-sm font-medium text-gray-700">
               Display days:
             </label>

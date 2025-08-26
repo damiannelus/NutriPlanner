@@ -82,6 +82,15 @@ export function ShoppingView() {
             <h3 className="text-lg font-medium text-gray-900">Select Period</h3>
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-700">
+                Start date:
+              </label>
+              <input
+                type="date"
+                value={format(startDate, 'yyyy-MM-dd')}
+                onChange={(e) => setStartDate(new Date(e.target.value))}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+              <label className="text-sm font-medium text-gray-700">
                 Number of days:
               </label>
               <select
