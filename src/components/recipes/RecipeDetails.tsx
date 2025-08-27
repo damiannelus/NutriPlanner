@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
-import { Clock, Users, Heart, Trash2, Calendar, Plus } from 'lucide-react'
+import { Clock, Users, Heart, Trash2, Calendar, Plus, X, Tag } from 'lucide-react'
 import { Recipe } from '../../types'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { Input } from '../ui/Input'
 
 interface RecipeDetailsProps {
   recipe: Recipe | null
@@ -12,6 +13,7 @@ interface RecipeDetailsProps {
   onClose: () => void
   onToggleFavorite?: (id: string, isFavorite: boolean) => void
   onDelete?: (id: string) => void
+  onUpdateRecipe?: (id: string, updates: Partial<Recipe>) => void
   selectedMealSlot?: { dayIndex: number; mealType: string } | null
   onReplaceMeal?: (recipe: Recipe) => void
   onAddToMealPlan?: (recipe: Recipe) => void
@@ -40,12 +42,23 @@ export function RecipeDetails({
   onClose, 
   onToggleFavorite, 
   onDelete,
+  onUpdateRecipe,
   selectedMealSlot,
   onReplaceMeal,
   onAddToMealPlan,
   onReplaceRecipe
 }: RecipeDetailsProps) {
   const { profile } = useAuth()
+  const [isEditingTags, setIsEditingTags] = useState(false)
+  const [newTag, setNewTag] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+
+  // Update local tags when recipe changes
+  useEffect(() => {
+    if (recipe) {
+      setTags(recipe.tags || [])
+    }
+  }, [recipe])
 
   if (!recipe) return null
 
@@ -79,6 +92,39 @@ export function RecipeDetails({
     onClose()
   }
 
+  const handleAddTag = () => {
+    const trimmedTag = newTag.trim()
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      const updatedTags = [...tags, trimmedTag]
+      setTags(updatedTags)
+      updateRecipeTags(updatedTags)
+      setNewTag('')
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    const updatedTags = tags.filter(tag => tag !== tagToRemove)
+    setTags(updatedTags)
+    updateRecipeTags(updatedTags)
+  }
+
+  const updateRecipeTags = async (updatedTags: string[]) => {
+    if (recipe && onUpdateRecipe) {
+      try {
+        await onUpdateRecipe(recipe.id, { tags: updatedTags })
+      } catch (error) {
+        console.error('Error updating recipe tags:', error)
+        // Revert local state on error
+        setTags(recipe.tags || [])
+      }
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAddTag()
+    }
+  }
   return (
     <Modal
       isOpen={isOpen}
@@ -229,21 +275,66 @@ export function RecipeDetails({
         </div>
 
         {/* Tags */}
-        {recipe.tags && recipe.tags.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-3">Tags</h3>
-            <div className="flex flex-wrap gap-2">
-              {recipe.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block px-3 py-1 text-sm bg-emerald-100 text-emerald-800 rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900">Tags</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditingTags(!isEditingTags)}
+            >
+              <Tag className="h-4 w-4 mr-1" />
+              {isEditingTags ? 'Done' : 'Edit Tags'}
+            </Button>
           </div>
-        )}
+          
+          <div className="space-y-3">
+            {/* Existing Tags */}
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <div
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-emerald-100 text-emerald-800 rounded-full"
+                >
+                  <span>{tag}</span>
+                  {isEditingTags && (
+                    <button
+                      onClick={() => handleRemoveTag(tag)}
+                      className="ml-1 p-0.5 hover:bg-emerald-200 rounded-full transition-colors"
+                      title="Remove tag"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {tags.length === 0 && (
+                <span className="text-gray-500 text-sm italic">No tags added yet</span>
+              )}
+            </div>
+            
+            {/* Add New Tag */}
+            {isEditingTags && (
+              <div className="flex gap-2">
+                <Input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Add a new tag..."
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleAddTag}
+                  disabled={!newTag.trim() || tags.includes(newTag.trim())}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Meal Planning Actions */}
         {onAddToMealPlan && !selectedMealSlot && (
