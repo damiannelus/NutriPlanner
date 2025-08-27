@@ -471,6 +471,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
         onClose={() => setSelectedRecipeForDetails(null)}
         onToggleFavorite={toggleFavorite}
         onDelete={handleDeleteRecipe}
+        onUpdateRecipe={updateRecipe}
         selectedMealSlot={selectedMealSlot}
         onReplaceMeal={onReplaceMeal}
         onAddToMealPlan={onReplaceMeal}
