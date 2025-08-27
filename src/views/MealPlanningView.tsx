@@ -196,6 +196,30 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
     setShowRecipeSelection(false)
   }
 
+  const handleServingChange = (dayIndex: number, mealType: string, newServings: number) => {
+    console.log('MealPlanningView: Serving change - day:', dayIndex, 'meal:', mealType, 'servings:', newServings)
+    
+    setMealPlan((prev: WeeklyMealPlan) => {
+      const dayPlan = prev[dayIndex.toString()]
+      const meal = dayPlan?.[mealType]
+      
+      if (meal) {
+        return {
+          ...prev,
+          [dayIndex]: {
+            ...dayPlan,
+            [mealType]: {
+              ...meal,
+              servings: newServings
+            }
+          }
+        }
+      }
+      
+      return prev
+    })
+  }
+
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -340,6 +364,7 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
         mealsPerDay={profile.meals_per_day}
         mealPlan={mealPlan}
         onMealSlotClick={handleMealSlotClick}
+        onServingChange={handleServingChange}
         dailyCalorieGoal={profile.daily_calorie_goal}
       />
 

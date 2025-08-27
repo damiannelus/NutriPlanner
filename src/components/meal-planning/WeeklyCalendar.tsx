@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { format, addDays } from 'date-fns'
-import { Plus, Clock, Users, RefreshCw } from 'lucide-react'
+import { Plus, Clock, Users, RefreshCw, Minus } from 'lucide-react'
 import { WeeklyMealPlan } from '../../utils/mealPlanGenerator'
 import { Recipe } from '../../types'
 import { Card } from '../ui/Card'
@@ -12,6 +12,7 @@ interface WeeklyCalendarProps {
   mealsPerDay: number
   mealPlan: WeeklyMealPlan
   onMealSlotClick?: (dayIndex: number, mealType: string, recipe?: Recipe) => void
+  onServingChange?: (dayIndex: number, mealType: string, newServings: number) => void
   dailyCalorieGoal?: number
 }
 
@@ -20,7 +21,7 @@ interface MealType {
   label: string
 }
 
-export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPlan, onMealSlotClick, dailyCalorieGoal = 2000 }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPlan, onMealSlotClick, onServingChange, dailyCalorieGoal = 2000 }: WeeklyCalendarProps) {
   const mealTypes = useMemo((): MealType[] => {
     const mealConfigs = {
       3: [
@@ -172,6 +173,7 @@ export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPl
                 mealType={mealType}
                 mealPlan={mealPlan}
                 onMealSlotClick={onMealSlotClick}
+                onServingChange={onServingChange}
               />
             ))}
           </div>
@@ -187,9 +189,10 @@ interface MealSlotProps {
   mealType: MealType
   mealPlan: WeeklyMealPlan
   onMealSlotClick?: (dayIndex: number, mealType: string, recipe?: Recipe) => void
+  onServingChange?: (dayIndex: number, mealType: string, newServings: number) => void
 }
 
-function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick }: MealSlotProps) {
+function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick, onServingChange }: MealSlotProps) {
   const dayPlan = mealPlan[dayIndex.toString()]
   const meal = dayPlan?.[mealType.id as keyof typeof dayPlan]
 
@@ -201,14 +204,45 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick }: MealSl
     e.stopPropagation()
     onMealSlotClick?.(dayIndex, mealType.id, undefined)
   }
+
+  const handleServingChange = (e: React.MouseEvent, delta: number) => {
+    e.stopPropagation()
+    if (meal && onServingChange) {
+      const newServings = Math.max(0.5, Math.min(5, meal.servings + delta))
+      if (newServings !== meal.servings) {
+        onServingChange(dayIndex, mealType.id, newServings)
+      }
+    }
+  }
+  
   if (meal) {
     const totalCalories = Math.round(parseInt(meal.recipe.nutrition_facts.calories) * meal.servings)
     
     return (
       <Card 
-        className="h-20 p-2 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer group relative"
+        className="h-24 p-2 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer group relative"
         onClick={() => onMealSlotClick?.(dayIndex, mealType.id, meal.recipe)}
       >
+        {/* Serving adjustment controls */}
+        <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <button
+            onClick={(e) => handleServingChange(e, -0.5)}
+            disabled={meal.servings <= 0.5}
+            className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Decrease serving"
+          >
+            <Minus className="h-2.5 w-2.5 text-gray-600" />
+          </button>
+          <button
+            onClick={(e) => handleServingChange(e, 0.5)}
+            disabled={meal.servings >= 5}
+            className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Increase serving"
+          >
+            <Plus className="h-2.5 w-2.5 text-gray-600" />
+          </button>
+        </div>
+        
         <button
           onClick={handleSwapRecipe}
           className="absolute top-1 right-1 p-1 rounded-full bg-white shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 z-10"
@@ -216,13 +250,14 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick }: MealSl
         >
           <RefreshCw className="h-3 w-3 text-gray-600" />
         </button>
+        
         <div className="h-full flex flex-col justify-between">
           <div className="flex-1 min-h-0">
             <h4 className="font-medium text-gray-900 text-xs leading-tight truncate">
               {meal.recipe.name}
             </h4>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-emerald-600 font-medium">
+              <span className="text-xs text-emerald-600 font-bold bg-white px-1 rounded">
                 {meal.servings}x
               </span>
               <span className="text-xs text-gray-500">
@@ -236,7 +271,7 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick }: MealSl
   }
 
   return (
-    <Card className="h-20 p-2 hover:shadow-md transition-shadow">
+    <Card className="h-24 p-2 hover:shadow-md transition-shadow">
       <div className="h-full flex items-center justify-center">
         <Button
           variant="ghost"
