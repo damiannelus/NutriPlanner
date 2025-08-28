@@ -161,9 +161,21 @@ function generateMealForSlotInternal(
   usedRecipes?: Set<string>,
   profile?: Profile
 ): GeneratedMeal | null {
+  // Map meal types to profile default recipe keys
+  const mealTypeMapping: Record<string, string> = {
+    'breakfast': 'breakfast',
+    'brunch': 'brunch', 
+    'lunch': 'lunch',
+    'afternoon_snack': 'snack', // Map afternoon_snack to snack in profile
+    'dinner': 'dinner',
+    'snack': 'snack'
+  }
+  
+  const profileMealType = mealTypeMapping[mealType] || mealType
+  
   // Check if there's a default recipe for this meal type
-  if (profile?.default_recipes?.[mealType as keyof typeof profile.default_recipes]) {
-    const defaultRecipeId = profile.default_recipes[mealType as keyof typeof profile.default_recipes]
+  if (profile?.default_recipes?.[profileMealType as keyof typeof profile.default_recipes]) {
+    const defaultRecipeId = profile.default_recipes[profileMealType as keyof typeof profile.default_recipes]
     const defaultRecipe = recipes.find(recipe => recipe.id === defaultRecipeId)
     
     if (defaultRecipe) {
