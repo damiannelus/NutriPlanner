@@ -33,6 +33,13 @@ export interface Profile {
   daily_calorie_goal: number
   meals_per_day: number
   display_days: number
+  default_recipes: {
+    breakfast?: string
+    brunch?: string
+    lunch?: string
+    dinner?: string
+    snack?: string
+  }
   created_at: string
   updated_at: string
 }
