@@ -54,7 +54,6 @@ export function ProfileSettings() {
   const [showRecipeSelection, setShowRecipeSelection] = useState(false)
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
   
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<ProfileFormData>({
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       full_name: profile?.full_name || '',
@@ -114,6 +113,7 @@ export function ProfileSettings() {
     setShowRecipeSelection(false)
     setSelectedMealType(null)
   }
+  
   const getRecipeById = (recipeId: string) => {
     return recipes.find(recipe => recipe.id === recipeId)
   }
@@ -181,6 +181,7 @@ export function ProfileSettings() {
       </div>
     )
   }
+  
   return (
     <div className="space-y-6">
       <div>
