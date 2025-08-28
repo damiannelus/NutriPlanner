@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRecipes } from '../../hooks/useRecipes'
@@ -63,6 +64,19 @@ export function ProfileSettings() {
       default_recipes: profile?.default_recipes || {}
     }
   })
+
+  // Reset form when profile changes (including default_recipes)
+  useEffect(() => {
+    if (profile) {
+      reset({
+        full_name: profile.full_name,
+        daily_calorie_goal: profile.daily_calorie_goal,
+        meals_per_day: profile.meals_per_day,
+        display_days: profile.display_days,
+        default_recipes: profile.default_recipes || {}
+      })
+    }
+  }, [profile, reset])
 
   // Watch the meals_per_day and daily_calorie_goal values for real-time updates
   const watchedMealsPerDay = watch('meals_per_day')
