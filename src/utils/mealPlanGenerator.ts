@@ -62,7 +62,7 @@ export function generateWeeklyMealPlan(
       daily_calorie_goal, 
       mealDistribution,
       mealTypes, 
-      usedRecipesToday
+      usedRecipesToday,
       profile
     )
   }
