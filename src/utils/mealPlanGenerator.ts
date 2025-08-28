@@ -70,6 +70,16 @@ export function generateWeeklyMealPlan(
   return weeklyPlan
 }
 
+export function generateMealForSlot(
+  recipes: Recipe[],
+  targetCalories: number, 
+  mealType: string,
+  usedRecipes?: Set<string>,
+  profile?: Profile
+): GeneratedMeal | null {
+  return generateMealForSlotInternal(recipes, targetCalories, mealType, usedRecipes, profile)
+}
+
 function generateDailyMealPlan(
   recipes: Recipe[],
   targetCalories: number,
@@ -125,7 +135,7 @@ function generateDailyMealPlan(
   for (const mealType of mealTypes) {
     const mealPercentage = mealDistribution[mealType] || (100 / mealTypes.length)
     const caloriesPerMeal = Math.round((targetCalories * mealPercentage) / 100)
-    const meal = generateMealForSlot(recipes, caloriesPerMeal, mealType, usedRecipesToday, profile)
+    const meal = generateMealForSlotInternal(recipes, caloriesPerMeal, mealType, usedRecipesToday, profile)
     if (meal) {
       fallbackPlan[mealType as keyof DailyMealPlan] = meal
       usedRecipesToday.add(meal.recipe.id)
@@ -144,7 +154,7 @@ function getMealTypesForCount(mealsPerDay: number): string[] {
   return mealConfigs[mealsPerDay as keyof typeof mealConfigs] || mealConfigs[3]
 }
 
-function generateMealForSlot(
+function generateMealForSlotInternal(
   recipes: Recipe[],
   targetCalories: number, 
   mealType: string,
