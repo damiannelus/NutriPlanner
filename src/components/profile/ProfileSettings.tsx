@@ -55,6 +55,7 @@ export function ProfileSettings() {
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
   
   const { register, handleSubmit, watch, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
