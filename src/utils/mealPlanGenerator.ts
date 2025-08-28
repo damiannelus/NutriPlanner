@@ -62,11 +62,22 @@ export function generateWeeklyMealPlan(
       daily_calorie_goal, 
       mealDistribution,
       mealTypes, 
-      usedRecipesToday
+      usedRecipesToday,
+      profile
     )
   }
 
   return weeklyPlan
+}
+
+export function generateMealForSlot(
+  recipes: Recipe[],
+  targetCalories: number, 
+  mealType: string,
+  usedRecipes?: Set<string>,
+  profile?: Profile
+): GeneratedMeal | null {
+  return generateMealForSlotInternal(recipes, targetCalories, mealType, usedRecipes, profile)
 }
 
 function generateDailyMealPlan(
@@ -74,7 +85,8 @@ function generateDailyMealPlan(
   targetCalories: number,
   mealDistribution: Record<string, number>,
   mealTypes: string[],
-  usedRecipesToday: Set<string>
+  usedRecipesToday: Set<string>,
+  profile: Profile
 ): DailyMealPlan {
   const maxAttempts = 50
   const targetMin = targetCalories * 0.9
@@ -95,7 +107,8 @@ function generateDailyMealPlan(
         recipes, 
         targetMealCalories, 
         mealType, 
-        attemptUsedRecipes
+        attemptUsedRecipes,
+        profile
       )
       
       if (meal) {
@@ -122,7 +135,7 @@ function generateDailyMealPlan(
   for (const mealType of mealTypes) {
     const mealPercentage = mealDistribution[mealType] || (100 / mealTypes.length)
     const caloriesPerMeal = Math.round((targetCalories * mealPercentage) / 100)
-    const meal = generateMealForSlot(recipes, caloriesPerMeal, mealType, usedRecipesToday)
+    const meal = generateMealForSlotInternal(recipes, caloriesPerMeal, mealType, usedRecipesToday, profile)
     if (meal) {
       fallbackPlan[mealType as keyof DailyMealPlan] = meal
       usedRecipesToday.add(meal.recipe.id)
@@ -141,12 +154,36 @@ function getMealTypesForCount(mealsPerDay: number): string[] {
   return mealConfigs[mealsPerDay as keyof typeof mealConfigs] || mealConfigs[3]
 }
 
-function generateMealForSlot(
+function generateMealForSlotInternal(
   recipes: Recipe[],
   targetCalories: number, 
   mealType: string,
-  usedRecipes?: Set<string>
+  usedRecipes?: Set<string>,
+  profile?: Profile
 ): GeneratedMeal | null {
+  // Map meal types to profile default recipe keys
+  const mealTypeMapping: Record<string, string> = {
+    'breakfast': 'breakfast',
+    'brunch': 'brunch', 
+    'lunch': 'lunch',
+    'afternoon_snack': 'snack', // Map afternoon_snack to snack in profile
+    'dinner': 'dinner',
+    'snack': 'snack'
+  }
+  
+  const profileMealType = mealTypeMapping[mealType] || mealType
+  
+  // Check if there's a default recipe for this meal type
+  if (profile?.default_recipes?.[profileMealType as keyof typeof profile.default_recipes]) {
+    const defaultRecipeId = profile.default_recipes[profileMealType as keyof typeof profile.default_recipes]
+    const defaultRecipe = recipes.find(recipe => recipe.id === defaultRecipeId)
+    
+    if (defaultRecipe) {
+      // Use the default recipe and calculate appropriate servings
+      return calculateServings(defaultRecipe, targetCalories)
+    }
+  }
+
   // Filter recipes suitable for this meal type
   let suitableRecipes = filterRecipesByMealType(recipes, mealType)
   

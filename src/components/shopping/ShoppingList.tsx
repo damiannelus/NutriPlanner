@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingCart, ChevronDown, ChevronRight } from 'lucide-react'
+import { ShoppingCart, ChevronDown, ChevronRight, Download } from 'lucide-react'
 import { PlannedMeal, Recipe, ShoppingListItem, CategorizedShoppingList } from '../../types'
 import { generateShoppingList, categorizeShoppingList } from '../../utils/shoppingList'
 import { Card } from '../ui/Card'
@@ -96,6 +96,31 @@ export function ShoppingList({ meals, recipes }: ShoppingListProps) {
     }
   }
 
+  const exportToCSV = () => {
+    // Create CSV content with headers
+    let csvContent = 'Ingredient,Quantity,Unit,Used In\n'
+    
+    // Add each item as a CSV row
+    shoppingList.forEach(item => {
+      const ingredient = `"${item.ingredient.replace(/"/g, '""')}"`
+      const quantity = `"${item.quantity}"`
+      const unit = `"${item.unit}"`
+      const recipes = `"${item.recipes.join(', ').replace(/"/g, '""')}"`
+      
+      csvContent += `${ingredient},${quantity},${unit},${recipes}\n`
+    })
+    
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `shopping-list-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
   const toggleCategory = (category: string) => {
     const newExpanded = new Set(expandedCategories)
     if (newExpanded.has(category)) {
@@ -122,9 +147,15 @@ export function ShoppingList({ meals, recipes }: ShoppingListProps) {
           <p className="text-gray-600">{shoppingList.length} items for this week</p>
         </div>
         
-        <Button variant="outline" onClick={copyToClipboard}>
-          Copy List
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={copyToClipboard}>
+            Copy List
+          </Button>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="h-4 w-4 mr-2" />
+            Export to CSV
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-2">

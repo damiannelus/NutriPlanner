@@ -7,7 +7,7 @@ import { useMealPlans } from '../hooks/useMealPlans'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { WeeklyCalendar } from '../components/meal-planning/WeeklyCalendar'
-import { generateWeeklyMealPlan, type WeeklyMealPlan } from '../utils/mealPlanGenerator'
+import { generateWeeklyMealPlan, generateMealForSlot, type WeeklyMealPlan } from '../utils/mealPlanGenerator'
 import { RecipeDetails } from '../components/recipes/RecipeDetails'
 import { RecipesView } from './RecipesView'
 import { Recipe } from '../types'
@@ -86,9 +86,14 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
       for (const mealType of mealTypes) {
         // Only fill if slot is empty
         if (!updatedMealPlan[dayKey][mealType]) {
-          // Generate a single meal plan and take the first day's meal for this type
-          const fullWeekPlan = generateWeeklyMealPlan(recipes, profile)
-          const generatedMeal = fullWeekPlan['0']?.[mealType]
+          // Use generateMealForSlot to respect default recipes
+          const generatedMeal = generateMealForSlot(
+            recipes,
+            Math.floor(profile.daily_calorie_goal / profile.meals_per_day),
+            mealType,
+            new Set(), // Don't worry about duplicates for individual slot filling
+            profile
+          )
           
           if (generatedMeal) {
             updatedMealPlan[dayKey][mealType] = generatedMeal

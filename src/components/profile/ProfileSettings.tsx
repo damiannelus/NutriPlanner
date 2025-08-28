@@ -1,16 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../../contexts/AuthContext'
+import { useRecipes } from '../../hooks/useRecipes'
 import { populateRecipes } from '../../scripts/populateRecipes'
+import { RecipesView } from '../../views/RecipesView'
 import { Card } from '../ui/Card'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
+import { X, Plus } from 'lucide-react'
+import { Recipe } from '../../types'
 
 interface ProfileFormData {
   full_name: string
   daily_calorie_goal: number
   meals_per_day: number
   display_days: number
+  default_recipes: {
+    breakfast?: string
+    brunch?: string
+    lunch?: string
+    dinner?: string
+    snack?: string
+  }
 }
 
 // Meal calorie distribution by meals per day
@@ -37,21 +48,75 @@ const MEAL_DISTRIBUTIONS = {
 
 export function ProfileSettings() {
   const { profile, updateProfile, user } = useAuth()
+  const { recipes } = useRecipes()
   const [isPopulating, setIsPopulating] = useState(false)
   const [populateMessage, setPopulateMessage] = useState('')
+  const [showRecipeSelection, setShowRecipeSelection] = useState(false)
+  const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
   
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
       meals_per_day: profile?.meals_per_day || 3,
-      display_days: profile?.display_days || 7
+      display_days: profile?.display_days || 7,
+      default_recipes: profile?.default_recipes || {}
     }
   })
+
+  // Reset form when profile changes (including default_recipes)
+  useEffect(() => {
+    if (profile) {
+      reset({
+        full_name: profile.full_name,
+        daily_calorie_goal: profile.daily_calorie_goal,
+        meals_per_day: profile.meals_per_day,
+        display_days: profile.display_days,
+        default_recipes: profile.default_recipes || {}
+      })
+    }
+  }, [profile, reset])
 
   // Watch the meals_per_day and daily_calorie_goal values for real-time updates
   const watchedMealsPerDay = watch('meals_per_day')
   const watchedCalorieGoal = watch('daily_calorie_goal')
+  const watchedDefaultRecipes = watch('default_recipes')
+
+  const setDefaultRecipe = (mealType: string, recipeId: string | undefined) => {
+    const currentDefaults = watchedDefaultRecipes || {}
+    const updatedDefaults = { ...currentDefaults }
+    
+    if (recipeId) {
+      updatedDefaults[mealType as keyof typeof updatedDefaults] = recipeId
+    } else {
+      delete updatedDefaults[mealType as keyof typeof updatedDefaults]
+    }
+    
+    // Update the form and immediately save to profile
+    updateProfile({ default_recipes: updatedDefaults })
+  }
+
+  const handleSelectDefaultRecipe = (mealType: string) => {
+    setSelectedMealType(mealType)
+    setShowRecipeSelection(true)
+  }
+
+  const handleRecipeSelected = (recipe: Recipe) => {
+    if (selectedMealType) {
+      setDefaultRecipe(selectedMealType, recipe.id)
+      setSelectedMealType(null)
+      setShowRecipeSelection(false)
+    }
+  }
+
+  const handleBackToProfile = () => {
+    setShowRecipeSelection(false)
+    setSelectedMealType(null)
+  }
+  
+  const getRecipeById = (recipeId: string) => {
+    return recipes.find(recipe => recipe.id === recipeId)
+  }
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -87,6 +152,36 @@ export function ProfileSettings() {
 
   if (!profile) return null
 
+  // Show recipe selection view
+  if (showRecipeSelection) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={handleBackToProfile}
+          >
+            ← Back to Profile
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Select Default Recipe</h1>
+            <p className="text-purple-600 font-medium">
+              Choose a default recipe for {selectedMealType}
+            </p>
+          </div>
+        </div>
+        
+        <RecipesView
+          selectedMealSlot={{ dayIndex: 0, mealType: selectedMealType || '' }}
+          onReplaceMeal={handleRecipeSelected}
+          onViewChange={() => {}}
+          selectedMealType={selectedMealType}
+          onSelectDefaultRecipe={handleRecipeSelected}
+        />
+      </div>
+    )
+  }
+  
   return (
     <div className="space-y-6">
       <div>
@@ -164,6 +259,63 @@ export function ProfileSettings() {
               </div>
             </div>
           )}
+
+          {/* Default Recipes Section */}
+          <div className="bg-purple-50 rounded-lg p-6">
+            <h4 className="font-medium text-purple-900 mb-4">Default Recipes</h4>
+            <p className="text-sm text-purple-700 mb-6">
+              Set default recipes for each meal type. These will be used as fallbacks when generating meal plans.
+            </p>
+            
+            <div className="space-y-4">
+              {['breakfast', 'brunch', 'lunch', 'dinner', 'snack'].map((mealType) => {
+                const currentRecipeId = watchedDefaultRecipes?.[mealType as keyof typeof watchedDefaultRecipes]
+                const currentRecipe = currentRecipeId ? getRecipeById(currentRecipeId) : null
+                
+                return (
+                  <div key={mealType} className="flex items-center justify-between p-3 bg-white rounded-md border border-purple-200">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-gray-900 capitalize w-20">
+                        {mealType === 'snack' ? 'Snack' : mealType}
+                      </span>
+                      {currentRecipe ? (
+                        <div className="flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                          <span className="text-sm font-medium">{currentRecipe.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setDefaultRecipe(mealType, undefined)}
+                            className="p-0.5 hover:bg-purple-200 rounded-full transition-colors"
+                            title="Remove default recipe"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500 italic">No default set</span>
+                      )}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSelectDefaultRecipe(mealType)}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      {currentRecipe ? 'Change' : 'Select'}
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+            
+            {recipes.length === 0 && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 mb-2">No recipes available</p>
+                <p className="text-xs text-gray-400">Add some recipes first to set defaults</p>
+              </div>
+            )}
+          </div>
+
           <Button type="submit">
             Save Changes
           </Button>
