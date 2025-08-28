@@ -22,7 +22,7 @@ interface RecipesViewProps {
   onSelectDefaultRecipe?: (recipe: Recipe) => void
 }
 
-export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: RecipesViewProps) {
+export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, selectedMealType, onSelectDefaultRecipe }: RecipesViewProps) {
   const { recipes, loading, addRecipe, updateRecipe, deleteRecipe, toggleFavorite } = useRecipes()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | undefined>()
