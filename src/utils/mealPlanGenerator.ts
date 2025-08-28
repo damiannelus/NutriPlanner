@@ -97,7 +97,7 @@ function generateDailyMealPlan(
         recipes, 
         targetMealCalories, 
         mealType, 
-        attemptUsedRecipes
+        attemptUsedRecipes,
         profile
       )
       
