@@ -161,6 +161,8 @@ export function ProfileSettings() {
           selectedMealSlot={{ dayIndex: 0, mealType: selectedMealType || '' }}
           onReplaceMeal={handleRecipeSelected}
           onViewChange={() => {}}
+          selectedMealType={selectedMealType}
+          onSelectDefaultRecipe={handleRecipeSelected}
         />
       </div>
     )

@@ -18,6 +18,8 @@ interface RecipesViewProps {
   } | null
   onReplaceMeal?: (recipe: Recipe) => void
   onViewChange?: (view: string) => void
+  selectedMealType?: string | null
+  onSelectDefaultRecipe?: (recipe: Recipe) => void
 }
 
 export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: RecipesViewProps) {
@@ -40,6 +42,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
   const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null)
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
+  const showSelectDefault = !!selectedMealType && !!onSelectDefaultRecipe
 
   // Add keyboard shortcut for focusing search
   useEffect(() => {
@@ -237,6 +240,10 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
             <p className="text-emerald-600 font-medium">
               Select a recipe to replace the selected meal
             </p>
+          ) : showSelectDefault ? (
+            <p className="text-purple-600 font-medium">
+              Select a default recipe for {selectedMealType}
+            </p>
           ) : (
             <p className="text-gray-600">
               {recipes.length} recipes • {recipes.filter(r => r.is_favorite).length} favorites
@@ -244,7 +251,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
           )}
         </div>
         
-        {!showReplaceMeal && (
+        {!showReplaceMeal && !showSelectDefault && (
           <Button onClick={openNewRecipeForm}>
             <Plus className="h-4 w-4 mr-2" />
             Add Recipe
@@ -475,6 +482,8 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange }: R
         selectedMealSlot={selectedMealSlot}
         onReplaceMeal={onReplaceMeal}
         onAddToMealPlan={onReplaceMeal}
+        selectedMealType={selectedMealType}
+        onSelectDefaultRecipe={onSelectDefaultRecipe}
       />
     </div>
   )

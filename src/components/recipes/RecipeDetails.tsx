@@ -18,6 +18,8 @@ interface RecipeDetailsProps {
   onReplaceMeal?: (recipe: Recipe) => void
   onAddToMealPlan?: (recipe: Recipe) => void
   onReplaceRecipe?: () => void
+  selectedMealType?: string | null
+  onSelectDefaultRecipe?: (recipe: Recipe) => void
 }
 
 // Helper function to parse time strings for display
@@ -46,7 +48,9 @@ export function RecipeDetails({
   selectedMealSlot,
   onReplaceMeal,
   onAddToMealPlan,
-  onReplaceRecipe
+  onReplaceRecipe,
+  selectedMealType,
+  onSelectDefaultRecipe
 }: RecipeDetailsProps) {
   const { profile } = useAuth()
   const [isEditingTags, setIsEditingTags] = useState(false)
@@ -92,6 +96,11 @@ export function RecipeDetails({
     onClose()
   }
 
+  const handleSelectAsDefault = () => {
+    if (!recipe || !onSelectDefaultRecipe) return
+    onSelectDefaultRecipe(recipe)
+    onClose()
+  }
   const handleAddTag = () => {
     const trimmedTag = newTag.trim()
     if (trimmedTag && !tags.includes(trimmedTag)) {
@@ -382,6 +391,20 @@ export function RecipeDetails({
           </div>
         )}
       </div>
+        {/* Select as Default Recipe Button (when selecting default recipe) */}
+        {selectedMealType && onSelectDefaultRecipe && (
+          <div className="pt-6 border-t border-gray-200">
+            <div className="bg-purple-50 rounded-lg p-4">
+              <h3 className="font-medium text-purple-900 mb-2">Set as Default Recipe</h3>
+              <p className="text-sm text-purple-700 mb-3">
+                Set this recipe as the default for {selectedMealType}
+              </p>
+              <Button onClick={handleSelectAsDefault} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                Set as Default for {selectedMealType}
+              </Button>
+            </div>
+          </div>
+        )}
     </Modal>
   )
 }
