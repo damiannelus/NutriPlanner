@@ -13,7 +13,9 @@ A comprehensive full-stack meal planning application built with React, TypeScrip
 
 ### 📅 Meal Planning
 - **Flexible Planning**: Plan meals for 2-7 days at a time
-- **Smart Generation**: Auto-generate meal plans based on your calorie goals and meal preferences
+- **Smart Generation**: Auto-generate meal plans based on your calorie goals, meal preferences, and default recipes
+- **Default Recipe Integration**: Uses your selected default recipes when generating meal plans or filling empty slots
+- **Fill Empty Slots**: Intelligently fill only the empty meal slots while preserving existing meals
 - **Visual Calendar**: Interactive calendar view with drag-and-drop functionality
 - **Nutrition Overview**: See daily calorie totals and macro breakdowns
 - **Meal Customization**: Adjust serving sizes and replace individual meals
@@ -27,6 +29,8 @@ A comprehensive full-stack meal planning application built with React, TypeScrip
 
 ### 👤 User Profiles
 - **Personal Settings**: Set daily calorie goals and preferred meals per day
+- **Default Recipes**: Set default recipes for each meal type (breakfast, brunch, lunch, dinner, snack)
+- **Display Days Configuration**: Choose to display 2-7 days in meal planning and shopping lists
 - **Sample Data**: Quick start with pre-loaded sample recipes
 - **Secure Authentication**: Firebase-powered user authentication
 
@@ -98,6 +102,14 @@ The app uses these Firestore collections:
   full_name: string,       // Display name
   daily_calorie_goal: number, // Target daily calories
   meals_per_day: number,   // 3, 4, or 5 meals per day
+  display_days: number,    // 2-7 days to display in planning/shopping
+  default_recipes: {       // Default recipes for each meal type
+    breakfast?: string,    // Recipe ID for default breakfast
+    brunch?: string,       // Recipe ID for default brunch  
+    lunch?: string,        // Recipe ID for default lunch
+    dinner?: string,       // Recipe ID for default dinner
+    snack?: string         // Recipe ID for default snack
+  },
   created_at: timestamp,
   updated_at: timestamp
 }
@@ -186,6 +198,7 @@ service cloud.firestore {
 ### Getting Started
 1. **Sign up** for a new account or sign in
 2. **Set up your profile** with calorie goals and meal preferences
+3. **Configure default recipes** (optional) for consistent meal planning
 3. **Add sample recipes** using the "Add Sample Recipes" button in Profile settings
 4. **Generate your first meal plan** in the Meal Planning tab
 
@@ -198,7 +211,8 @@ service cloud.firestore {
 
 ### Meal Planning
 - **Select Days**: Choose how many days to display (2-7 days)
-- **Generate Plan**: Click "Generate Meal Plan" for automatic planning
+- **Generate Plan**: Click "Generate Meal Plan" for automatic planning using your default recipes and preferences
+- **Fill Empty Slots**: Use "Fill Empty Slots" to add meals only to empty slots while keeping existing meals
 - **Replace Meals**: Click on any meal slot to replace it with a different recipe
 - **Clear Plan**: Use "Empty the plan" to clear all meals for the displayed period
 - **Navigate**: Use arrow buttons to move between different time periods
@@ -241,11 +255,13 @@ src/
 ### Key Features Implementation
 
 #### Meal Plan Generation
-The app uses a smart algorithm to generate balanced meal plans:
+The app uses a smart algorithm to generate balanced meal plans with default recipe integration:
+- **Default Recipe Priority**: Uses your selected default recipes when available for each meal type
 - Filters recipes by meal type (breakfast, lunch, dinner, etc.)
 - Calculates appropriate serving sizes based on calorie goals
 - Avoids repeating recipes within the same day
 - Balances total daily calories within 90-105% of target
+- Falls back to intelligent recipe selection for meals without default recipes set
 
 #### Shopping List Categorization
 Ingredients are automatically categorized using keyword matching:
@@ -281,6 +297,9 @@ If you encounter any issues or have questions:
 
 ## Roadmap
 
+- [x] Default recipe system for consistent meal planning
+- [x] Flexible display days configuration (2-7 days)
+- [x] Fill empty slots functionality
 - [ ] Mobile app version
 - [ ] Recipe import from URLs
 - [ ] Meal plan sharing between users
