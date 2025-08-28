@@ -3,10 +3,12 @@ import { useForm } from 'react-hook-form'
 import { useAuth } from '../../contexts/AuthContext'
 import { useRecipes } from '../../hooks/useRecipes'
 import { populateRecipes } from '../../scripts/populateRecipes'
+import { RecipesView } from '../../views/RecipesView'
 import { Card } from '../ui/Card'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
-import { X } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
+import { Recipe } from '../../types'
 
 interface ProfileFormData {
   full_name: string
@@ -49,6 +51,8 @@ export function ProfileSettings() {
   const { recipes } = useRecipes()
   const [isPopulating, setIsPopulating] = useState(false)
   const [populateMessage, setPopulateMessage] = useState('')
+  const [showRecipeSelection, setShowRecipeSelection] = useState(false)
+  const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
   
   const { register, handleSubmit, watch, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
@@ -79,6 +83,23 @@ export function ProfileSettings() {
     updateProfile({ default_recipes: updatedDefaults })
   }
 
+  const handleSelectDefaultRecipe = (mealType: string) => {
+    setSelectedMealType(mealType)
+    setShowRecipeSelection(true)
+  }
+
+  const handleRecipeSelected = (recipe: Recipe) => {
+    if (selectedMealType) {
+      setDefaultRecipe(selectedMealType, recipe.id)
+      setSelectedMealType(null)
+      setShowRecipeSelection(false)
+    }
+  }
+
+  const handleBackToProfile = () => {
+    setShowRecipeSelection(false)
+    setSelectedMealType(null)
+  }
   const getRecipeById = (recipeId: string) => {
     return recipes.find(recipe => recipe.id === recipeId)
   }
@@ -117,6 +138,33 @@ export function ProfileSettings() {
 
   if (!profile) return null
 
+  // Show recipe selection view
+  if (showRecipeSelection) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={handleBackToProfile}
+          >
+            ← Back to Profile
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Select Default Recipe</h1>
+            <p className="text-purple-600 font-medium">
+              Choose a default recipe for {selectedMealType}
+            </p>
+          </div>
+        </div>
+        
+        <RecipesView
+          selectedMealSlot={{ dayIndex: 0, mealType: selectedMealType || '' }}
+          onReplaceMeal={handleRecipeSelected}
+          onViewChange={() => {}}
+        />
+      </div>
+    )
+  }
   return (
     <div className="space-y-6">
       <div>
@@ -230,41 +278,14 @@ export function ProfileSettings() {
                       )}
                     </div>
                     
-                    <select
-                      value={currentRecipeId || ''}
-                      onChange={(e) => setDefaultRecipe(mealType, e.target.value || undefined)}
-                      className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSelectDefaultRecipe(mealType)}
                     >
-                      <option value="">Select recipe...</option>
-                      {recipes
-                        .filter(recipe => {
-                          // Simple filtering based on meal type
-                          const recipeName = recipe.name.toLowerCase()
-                          const recipeTags = recipe.tags.map(tag => tag.toLowerCase())
-                          const searchText = `${recipeName} ${recipeTags.join(' ')}`
-                          
-                          switch (mealType) {
-                            case 'breakfast':
-                              return searchText.includes('breakfast') || searchText.includes('morning')
-                            case 'brunch':
-                              return searchText.includes('brunch') || searchText.includes('breakfast') || searchText.includes('lunch')
-                            case 'lunch':
-                              return searchText.includes('lunch') || searchText.includes('salad') || searchText.includes('sandwich')
-                            case 'dinner':
-                              return searchText.includes('dinner') || searchText.includes('main') || searchText.includes('entree')
-                            case 'snack':
-                              return searchText.includes('snack') || searchText.includes('appetizer')
-                            default:
-                              return true
-                          }
-                        })
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map(recipe => (
-                          <option key={recipe.id} value={recipe.id}>
-                            {recipe.name}
-                          </option>
-                        ))}
-                    </select>
+                      <Plus className="h-4 w-4 mr-1" />
+                      {currentRecipe ? 'Change' : 'Select'}
+                    </Button>
                   </div>
                 )
               })}
