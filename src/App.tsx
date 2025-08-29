@@ -19,9 +19,9 @@ function AppContent() {
     mealType: string
   } | null>(null)
   
-  const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
+  const [currentWeek, setCurrentWeek] = useState(() => new Date())
   const [mealPlan, setMealPlan] = useState<WeeklyMealPlan>({})
-  const [globalStartDate, setGlobalStartDate] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
+  const [globalStartDate, setGlobalStartDate] = useState(() => new Date())
 
   // Keyboard shortcuts
   useEffect(() => {
