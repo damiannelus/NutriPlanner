@@ -237,6 +237,14 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
     )
   }
 
+  const toggleIngredient = (ingredient: string) => {
+    setSelectedIngredients(prev => 
+      prev.includes(ingredient) 
+        ? prev.filter(i => i !== ingredient)
+        : [...prev, ingredient]
+    )
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
