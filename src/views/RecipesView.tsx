@@ -416,7 +416,8 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">Ingredients:</span>
-                  <div className="relative">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
                     <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                     <input
                       type="text"
@@ -445,6 +446,15 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
                     <div className="text-xs text-gray-500 italic py-2">
                       No ingredients found matching "{ingredientSearchTerm}"
                     </div>
+                    {selectedIngredients.length > 0 && (
+                      <button
+                        onClick={() => setSelectedIngredients([])}
+                        className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                        title="Clear ingredient filter"
+                      >
+                        Clear
+                      </button>
+                    )}
                   )}
                 </div>
                 {selectedIngredients.length > 0 && (
