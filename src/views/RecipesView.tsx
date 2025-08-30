@@ -427,6 +427,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
                       className="pl-7 pr-3 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent w-40"
                     />
                   </div>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                   {filteredIngredients.map(ingredient => (
@@ -446,6 +447,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
                     <div className="text-xs text-gray-500 italic py-2">
                       No ingredients found matching "{ingredientSearchTerm}"
                     </div>
+                  )}
                     {selectedIngredients.length > 0 && (
                       <button
                         onClick={() => setSelectedIngredients([])}
@@ -455,7 +457,6 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
                         Clear
                       </button>
                     )}
-                  )}
                 </div>
                 {selectedIngredients.length > 0 && (
                   <div className="mt-2 text-xs text-blue-600">
