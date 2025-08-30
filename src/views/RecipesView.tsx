@@ -40,6 +40,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [isFiltering, setIsFiltering] = useState(false)
   const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null)
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
   const showSelectDefault = !!selectedMealType && !!onSelectDefaultRecipe
@@ -80,12 +81,19 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
     }, 100) // Small delay to show loading state
 
     return () => clearTimeout(timer)
-  }, [searchTerm, showFavoritesOnly, selectedTags, minPrepTime, maxPrepTime, minCalories, maxCalories, minServings, maxServings, sortBy, sortOrder])
+  }, [searchTerm, showFavoritesOnly, selectedTags, selectedIngredients, minPrepTime, maxPrepTime, minCalories, maxCalories, minServings, maxServings, sortBy, sortOrder])
 
   // Get all unique tags
   const allTags = Array.from(
     new Set(recipes.flatMap(recipe => recipe.tags))
   ).sort()
+
+  // Get all unique ingredients
+  const allIngredients = Array.from(
+    new Set(recipes.flatMap(recipe => 
+      recipe.ingredients.map(ing => ing.ingredient.toLowerCase().trim())
+    ))
+  ).filter(Boolean).sort()
 
   // Helper function to parse time string to minutes for comparison
   const parseTimeToMinutes = (timeStr: string | number | undefined): number => {
@@ -127,6 +135,13 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
     const matchesTags = selectedTags.length === 0 || 
                        selectedTags.some(tag => recipe.tags.includes(tag))
     
+    const matchesIngredients = selectedIngredients.length === 0 ||
+                              selectedIngredients.every(selectedIngredient =>
+                                recipe.ingredients.some(recipeIngredient =>
+                                  recipeIngredient.ingredient.toLowerCase().includes(selectedIngredient.toLowerCase())
+                                )
+                              )
+    
     // Parse prep time for filtering (use total_time if prep_time not available)
     const prepTimeMinutes = parseTimeToMinutes(recipe.prep_time || recipe.total_time)
     const matchesMinPrepTime = !minPrepTime || prepTimeMinutes >= parseInt(minPrepTime)
@@ -142,7 +157,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
     const matchesMinServings = !minServings || recipeServings >= parseInt(minServings)
     const matchesMaxServings = !maxServings || recipeServings <= parseInt(maxServings)
     
-    return matchesSearch && matchesFavorites && matchesTags && 
+    return matchesSearch && matchesFavorites && matchesTags && matchesIngredients &&
            matchesMinPrepTime && matchesMaxPrepTime &&
            matchesMinCalories && matchesMaxCalories &&
            matchesMinServings && matchesMaxServings
