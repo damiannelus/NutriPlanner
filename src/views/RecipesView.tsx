@@ -410,7 +410,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
           </div>
 
           {/* Ingredient Filter */}
-          {filteredIngredients.length > 0 && (
+          {allIngredients.length > 0 && (
             <div className="flex items-start gap-2">
               <Filter className="h-4 w-4 text-gray-600 mt-1" />
               <div className="flex-1">
