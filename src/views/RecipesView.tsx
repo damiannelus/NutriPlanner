@@ -396,6 +396,36 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
             </div>
           </div>
 
+          {/* Ingredient Filter */}
+          {allIngredients.length > 0 && (
+            <div className="flex items-start gap-2">
+              <Filter className="h-4 w-4 text-gray-600 mt-1" />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-gray-700 block mb-2">Ingredients:</span>
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                  {allIngredients.map(ingredient => (
+                    <button
+                      key={ingredient}
+                      onClick={() => toggleIngredient(ingredient)}
+                      className={`px-3 py-1 text-xs rounded-full transition-colors capitalize ${
+                        selectedIngredients.includes(ingredient)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {ingredient}
+                    </button>
+                  ))}
+                </div>
+                {selectedIngredients.length > 0 && (
+                  <div className="mt-2 text-xs text-blue-600">
+                    Showing recipes with: {selectedIngredients.join(', ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Sorting Options */}
           <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
             <span className="text-sm font-medium text-gray-700">Sort by:</span>
