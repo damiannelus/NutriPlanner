@@ -41,6 +41,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
   const [isFiltering, setIsFiltering] = useState(false)
   const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null)
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
+  const [ingredientSearchTerm, setIngredientSearchTerm] = useState('')
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
   const showSelectDefault = !!selectedMealType && !!onSelectDefaultRecipe
@@ -95,6 +96,10 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
     ))
   ).filter(Boolean).sort()
 
+  // Filter ingredients based on search term
+  const filteredIngredients = allIngredients.filter(ingredient =>
+    ingredient.toLowerCase().includes(ingredientSearchTerm.toLowerCase())
+  )
   // Helper function to parse time string to minutes for comparison
   const parseTimeToMinutes = (timeStr: string | number | undefined): number => {
     if (!timeStr) return 0
@@ -405,13 +410,25 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
           </div>
 
           {/* Ingredient Filter */}
-          {allIngredients.length > 0 && (
+          {filteredIngredients.length > 0 && (
             <div className="flex items-start gap-2">
               <Filter className="h-4 w-4 text-gray-600 mt-1" />
               <div className="flex-1">
-                <span className="text-sm font-medium text-gray-700 block mb-2">Ingredients:</span>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Ingredients:</span>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                    <input
+                      type="text"
+                      placeholder="Search ingredients..."
+                      value={ingredientSearchTerm}
+                      onChange={(e) => setIngredientSearchTerm(e.target.value)}
+                      className="pl-7 pr-3 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent w-40"
+                    />
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                  {allIngredients.map(ingredient => (
+                  {filteredIngredients.map(ingredient => (
                     <button
                       key={ingredient}
                       onClick={() => toggleIngredient(ingredient)}
@@ -424,6 +441,11 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
                       {ingredient}
                     </button>
                   ))}
+                  {ingredientSearchTerm && filteredIngredients.length === 0 && (
+                    <div className="text-xs text-gray-500 italic py-2">
+                      No ingredients found matching "{ingredientSearchTerm}"
+                    </div>
+                  )}
                 </div>
                 {selectedIngredients.length > 0 && (
                   <div className="mt-2 text-xs text-blue-600">
