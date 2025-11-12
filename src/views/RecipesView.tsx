@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, startOfWeek } from 'date-fns'
 import { motion } from 'framer-motion'
-import { Plus, Search, Filter, Heart, Loader2 } from 'lucide-react'
+import { Plus, Search, Filter, Heart, Loader2, Smartphone } from 'lucide-react'
 import { useRecipes } from '../hooks/useRecipes'
 import { Recipe } from '../types'
 import { Button } from '../components/ui/Button'
@@ -42,9 +42,26 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
   const [searchInputRef, setSearchInputRef] = useState<HTMLInputElement | null>(null)
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([])
   const [ingredientSearchTerm, setIngredientSearchTerm] = useState('')
+  const [isMobile, setIsMobile] = useState(false)
 
   const showReplaceMeal = !!selectedMealSlot && !!onReplaceMeal
   const showSelectDefault = !!selectedMealType && !!onSelectDefaultRecipe
+
+  // Mobile detection based on screen size
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768) // Tailwind's md breakpoint
+    }
+
+    // Check on mount
+    checkIsMobile()
+
+    // Add resize listener
+    window.addEventListener('resize', checkIsMobile)
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIsMobile)
+  }, [])
 
   // Add keyboard shortcut for focusing search
   useEffect(() => {
@@ -263,7 +280,14 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Recipes</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">My Recipes</h1>
+            {isMobile && (
+              <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
+                <Smartphone className="h-5 w-5 text-emerald-600" />
+              </div>
+            )}
+          </div>
           {showReplaceMeal ? (
             <p className="text-emerald-600 font-medium">
               Select a recipe to replace the selected meal
