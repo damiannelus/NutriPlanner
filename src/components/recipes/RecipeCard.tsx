@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Clock, Users, Edit, Trash2 } from 'lucide-react'
+import { Heart, Clock, Users, CreditCard as Edit, Trash2 } from 'lucide-react'
 import { Recipe } from '../../types'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
