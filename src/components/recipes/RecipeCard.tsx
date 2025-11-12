@@ -58,25 +58,25 @@ export function RecipeCard({
 
   return (
     <Card 
-      className="group relative"
+      className="group relative lg:hover:shadow-md transition-shadow"
       onClick={() => onViewDetails?.(recipe)}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
+      <div className="p-4 lg:p-6">
+        <div className="flex items-start justify-between mb-2 lg:mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-lg mb-2">{recipe.name}</h3>
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{recipe.description}</p>
+            <h3 className="font-semibold text-gray-900 text-base lg:text-lg mb-1 lg:mb-2 line-clamp-2">{recipe.name}</h3>
+            <p className="text-gray-600 text-sm mb-2 lg:mb-4 line-clamp-2 hidden lg:block">{recipe.description}</p>
           </div>
           
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => onToggleFavorite(recipe.id, !recipe.is_favorite)}
-            className="ml-2 p-1"
+            className="ml-2 p-2 lg:p-1"
           >
             <Heart
-              className={`h-5 w-5 transition-colors ${
+              className={`h-6 w-6 lg:h-5 lg:w-5 transition-colors ${
                 recipe.is_favorite 
                   ? 'text-red-500 fill-current' 
                   : 'text-gray-300 hover:text-red-500'
@@ -85,7 +85,7 @@ export function RecipeCard({
           </motion.button>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-3 lg:gap-4 text-sm text-gray-500 mb-3 lg:mb-4">
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
             <span>{getDisplayTime()}</span>
@@ -98,15 +98,17 @@ export function RecipeCard({
           )}
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-3 mb-4">
-          <div className="grid grid-cols-4 gap-2 text-xs">
+        <div className="bg-gray-50 rounded-lg p-2 lg:p-3 mb-3 lg:mb-4">
+          <div className="grid grid-cols-4 gap-1 lg:gap-2 text-xs">
             <div className="text-center">
               <div className="font-medium text-gray-900">{recipe.nutrition_facts.calories}</div>
-              <div className="text-gray-500">calories</div>
+              <div className="text-gray-500 hidden lg:block">calories</div>
+              <div className="text-gray-500 lg:hidden">cal</div>
             </div>
             <div className="text-center">
               <div className="font-medium text-gray-900">{recipe.nutrition_facts.protein}</div>
-              <div className="text-gray-500">protein</div>
+              <div className="text-gray-500 hidden lg:block">protein</div>
+              <div className="text-gray-500 lg:hidden">prot</div>
             </div>
             <div className="text-center">
               <div className="font-medium text-gray-900">{recipe.nutrition_facts.carbs}</div>
@@ -114,14 +116,15 @@ export function RecipeCard({
             </div>
             <div className="text-center">
               <div className="font-medium text-gray-900">{recipe.nutrition_facts.fat}</div>
-              <div className="text-gray-500">fat</div>
+              <div className="text-gray-500 hidden lg:block">fat</div>
+              <div className="text-gray-500 lg:hidden">fat</div>
             </div>
           </div>
         </div>
 
-        {recipe.tags.length > 0 && (
+        {recipe.tags.length > 0 && recipe.tags.slice(0, 3).length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
-            {recipe.tags.map((tag) => (
+            {recipe.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="inline-block px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded-full"
@@ -129,13 +132,19 @@ export function RecipeCard({
                 {tag}
               </span>
             ))}
+            {recipe.tags.length > 3 && (
+              <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                +{recipe.tags.length - 3}
+              </span>
+            )}
           </div>
         )}
 
+        {/* Desktop Actions */}
         <motion.div
+          className="hidden lg:flex gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: showActions ? 1 : 0 }}
-          className="flex gap-2"
           onClick={(e) => e.stopPropagation()}
         >
           {onAddToPlan && !showReplaceMeal && (
@@ -172,6 +181,28 @@ export function RecipeCard({
             <Trash2 className="h-4 w-4" />
           </Button>
         </motion.div>
+
+        {/* Mobile Actions - Always visible */}
+        <div className="lg:hidden flex gap-2" onClick={(e) => e.stopPropagation()}>
+          {onAddToPlan && !showReplaceMeal && (
+            <Button
+              size="sm"
+              onClick={() => onAddToPlan(recipe)}
+              className="flex-1"
+            >
+              Add to Plan
+            </Button>
+          )}
+          {onReplaceMeal && showReplaceMeal && (
+            <Button
+              size="sm"
+              onClick={() => onReplaceMeal(recipe)}
+              className="flex-1"
+            >
+              Replace Meal
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   )

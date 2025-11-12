@@ -63,10 +63,10 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 fixed top-0 left-0 right-0 z-40">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-emerald-700">Nutrition Navigator</h1>
+          <h1 className="text-lg font-bold text-emerald-700">Nutrition Navigator</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -74,6 +74,28 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div className="grid grid-cols-4 h-16">
+          {navigationItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={`
+                flex flex-col items-center justify-center gap-1 transition-colors
+                ${currentView === item.id 
+                  ? 'text-emerald-600' 
+                  : 'text-gray-400 hover:text-gray-600'
+                }
+              `}
+            >
+              <item.icon className={`h-5 w-5 ${currentView === item.id ? 'text-emerald-600' : ''}`} />
+              <span className="text-xs font-medium">{item.label.split(' ')[0]}</span>
+            </button>
+          ))}
         </div>
       </div>
 

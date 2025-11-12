@@ -278,10 +278,10 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">My Recipes</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">My Recipes</h1>
             {isMobile && (
               <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
                 <Smartphone className="h-5 w-5 text-emerald-600" />
@@ -304,7 +304,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
         </div>
         
         {!showReplaceMeal && !showSelectDefault && (
-          <Button onClick={openNewRecipeForm}>
+          <Button onClick={openNewRecipeForm} className="hidden lg:flex">
             <Plus className="h-4 w-4 mr-2" />
             Add Recipe
           </Button>
@@ -312,7 +312,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
       </div>
 
       {/* Search and Filters */}
-      <Card className="p-6">
+      <Card className="p-4 lg:p-6">
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -433,7 +433,8 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
             </div>
           </div>
 
-          {/* Ingredient Filter */}
+          {/* Ingredient Filter - Desktop */}
+          <div className="hidden lg:block">
           {allIngredients.length > 0 && (
             <div className="flex items-start gap-2">
               <Filter className="h-4 w-4 text-gray-600 mt-1" />
@@ -490,6 +491,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
               </div>
             </div>
           )}
+          </div>
 
           {/* Sorting Options */}
           <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
@@ -517,9 +519,21 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
         </div>
       </Card>
 
+      {/* Mobile Filter Button */}
+      <div className="lg:hidden">
+        <Button
+          variant="outline"
+          onClick={() => {/* TODO: Open filter modal */}}
+          className="w-full"
+        >
+          <Filter className="h-4 w-4 mr-2" />
+          Advanced Filters
+        </Button>
+      </div>
+
       {/* Recipes Grid */}
       {loading || isFiltering ? (
-        <Card className="p-12 text-center">
+        <Card className="p-8 lg:p-12 text-center">
           <div className="flex flex-col items-center">
             <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-4" />
             <p className="text-gray-600">
@@ -528,7 +542,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
           </div>
         </Card>
       ) : sortedRecipes.length === 0 ? (
-        <Card className="p-12 text-center">
+        <Card className="p-8 lg:p-12 text-center">
           <div className="max-w-sm mx-auto">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="h-8 w-8 text-gray-400" />
@@ -551,7 +565,7 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
           </div>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
           {sortedRecipes.map((recipe, index) => (
             <motion.div
               key={recipe.id}
@@ -571,6 +585,16 @@ export function RecipesView({ selectedMealSlot, onReplaceMeal, onViewChange, sel
             </motion.div>
           ))}
         </div>
+      )}
+
+      {/* Mobile FAB */}
+      {!showReplaceMeal && !showSelectDefault && (
+        <button
+          onClick={openNewRecipeForm}
+          className="lg:hidden fixed bottom-20 right-4 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-lg flex items-center justify-center z-30 transition-colors"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
       )}
 
       {/* Recipe Form Modal */}

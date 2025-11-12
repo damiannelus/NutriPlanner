@@ -187,12 +187,12 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navigation currentView={currentView} onViewChange={setCurrentView} />
       
       {/* Main Content */}
-      <div className="lg:pl-64">
-        <main className="p-6">
+      <div className="lg:pl-64 pt-16 lg:pt-0">
+        <main className="p-4 lg:p-6">
           {renderView()}
         </main>
       </div>
