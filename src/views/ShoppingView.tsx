@@ -83,9 +83,10 @@ export function ShoppingView({ globalStartDate, setGlobalStartDate }: ShoppingVi
       {/* Date Selection Controls */}
       <Card className="p-6">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <h3 className="text-lg font-medium text-gray-900">Select Period</h3>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">
                 Start date:
               </label>
@@ -93,37 +94,41 @@ export function ShoppingView({ globalStartDate, setGlobalStartDate }: ShoppingVi
                 type="date"
                 value={format(startDate, 'yyyy-MM-dd')}
                 onChange={(e) => setGlobalStartDate(new Date(e.target.value))}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent min-w-[140px]"
               />
+              </div>
+              <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">
-                Number of days:
+                Days:
               </label>
               <select
                 value={numberOfDays}
                 onChange={(e) => handleNumberOfDaysChange(parseInt(e.target.value))}
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent min-w-[80px]"
               >
                 {[2, 3, 4, 5, 6, 7].map(days => (
                   <option key={days} value={days}>
-                    {days} {days === 1 ? 'day' : 'days'}
+                    {days}
                   </option>
                 ))}
               </select>
+              </div>
             </div>
           </div>
 
           {/* Period Navigation */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigatePeriod('prev')}
+              className="w-full sm:w-auto"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous {numberOfDays} {numberOfDays === 1 ? 'Day' : 'Days'}
+              Previous
             </Button>
             
-            <div className="text-center">
+            <div className="text-center flex-1">
               <h2 className="text-lg font-semibold text-gray-900">
                 {numberOfDays === 1 
                   ? format(startDate, 'MMM d, yyyy')
@@ -136,22 +141,23 @@ export function ShoppingView({ globalStartDate, setGlobalStartDate }: ShoppingVi
               variant="outline"
               size="sm"
               onClick={() => navigatePeriod('next')}
+              className="w-full sm:w-auto"
             >
-              Next {numberOfDays} {numberOfDays === 1 ? 'Day' : 'Days'}
+              Next
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
 
           {/* Selected Dates Display */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="bg-gray-50 rounded-lg p-3 lg:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-2">
               {selectedDates.map((date, index) => (
                 <div
                   key={date.toISOString()}
-                  className="flex items-center gap-2 bg-white px-3 py-2 rounded-md border border-gray-200"
+                  className="flex items-center gap-2 bg-white px-2 lg:px-3 py-2 rounded-md border border-gray-200 text-sm"
                 >
                   <Calendar className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="font-medium text-gray-900">
                     {dayNames[(date.getDay() + 6) % 7]} {format(date, 'd')}
                   </span>
                 </div>
