@@ -52,79 +52,66 @@ export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPl
   }, [weekStart, displayDays])
 
   // Calculate daily calories for each day
-  const dailyCalories = useMemo(() => {
-    return days.map((_, dayIndex) => {
-      const dayPlan = mealPlan[dayIndex.toString()]
-      if (!dayPlan) return 0
-      
-      return Object.values(dayPlan).reduce((total, meal) => {
-        if (meal) {
-          const calories = parseInt(meal.recipe.nutrition_facts.calories) || 0
-          return total + (calories * meal.servings)
-        }
-        return total
-      }, 0)
-    })
-  }, [mealPlan, days])
+  const getDailyCalories = (dayIndex: number) => {
+    const dayPlan = mealPlan[dayIndex.toString()]
+    if (!dayPlan) return 0
+    
+    return Object.values(dayPlan).reduce((total, meal) => {
+      if (meal) {
+        const calories = parseInt(meal.recipe.nutrition_facts.calories) || 0
+        return total + (calories * meal.servings)
+      }
+      return total
+    }, 0)
+  }
 
   // Calculate daily macros for each day
-  const dailyMacros = useMemo(() => {
-    return days.map((_, dayIndex) => {
-      const dayPlan = mealPlan[dayIndex.toString()]
-      if (!dayPlan) return { protein: 0, carbs: 0, fat: 0 }
-      
-      return Object.values(dayPlan).reduce((totals, meal) => {
-        if (meal) {
-          const protein = parseFloat(String(meal.recipe.nutrition_facts.protein).replace(/[^\d.]/g, '')) || 0
-          const carbs = parseFloat(String(meal.recipe.nutrition_facts.carbs).replace(/[^\d.]/g, '')) || 0
-          const fat = parseFloat(String(meal.recipe.nutrition_facts.fat).replace(/[^\d.]/g, '')) || 0
-          
-          return {
-            protein: totals.protein + (protein * meal.servings),
-            carbs: totals.carbs + (carbs * meal.servings),
-            fat: totals.fat + (fat * meal.servings)
-          }
+  const getDailyMacros = (dayIndex: number) => {
+    const dayPlan = mealPlan[dayIndex.toString()]
+    if (!dayPlan) return { protein: 0, carbs: 0, fat: 0 }
+    
+    return Object.values(dayPlan).reduce((totals, meal) => {
+      if (meal) {
+        const protein = parseFloat(String(meal.recipe.nutrition_facts.protein).replace(/[^\d.]/g, '')) || 0
+        const carbs = parseFloat(String(meal.recipe.nutrition_facts.carbs).replace(/[^\d.]/g, '')) || 0
+        const fat = parseFloat(String(meal.recipe.nutrition_facts.fat).replace(/[^\d.]/g, '')) || 0
+        
+        return {
+          protein: totals.protein + (protein * meal.servings),
+          carbs: totals.carbs + (carbs * meal.servings),
+          fat: totals.fat + (fat * meal.servings)
         }
-        return totals
-      }, { protein: 0, carbs: 0, fat: 0 })
-    })
-  }, [mealPlan, days])
+      }
+      return totals
+    }, { protein: 0, carbs: 0, fat: 0 })
+  }
   
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const shortDayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
   return (
-    <div className="space-y-4">
-      {/* Days Header */}
-      <div className={`grid gap-4`} style={{ gridTemplateColumns: `auto repeat(${displayDays}, 1fr)` }}>
-        <div className="font-medium text-gray-700 text-center py-2">Meals</div>
-        {days.map((day, index) => (
-          <div key={day.toISOString()} className="text-center">
-            <div className="font-medium text-gray-900">{dayNames[(day.getDay() + 6) % 7]}</div>
-            <div className="text-sm text-gray-500">{format(day, 'd')}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Daily Calorie Summary */}
-      <div className={`grid gap-4 pt-4 border-t border-gray-200`} style={{ gridTemplateColumns: `auto repeat(${displayDays}, 1fr)` }}>
-        <div className="flex items-center justify-center h-16 bg-blue-50 rounded-lg">
-          <span className="font-medium text-blue-700 text-sm text-center">
-            Daily Total
-          </span>
-        </div>
-        {dailyCalories.map((calories, index) => (
-          <div key={index} className="flex items-center justify-center">
-            <Card className={`w-full h-full p-2 ${
-              calories > 0 
-                ? calories >= dailyCalorieGoal * 0.9 && calories <= dailyCalorieGoal * 1.1
-                  ? 'bg-green-50 border-green-200'
-                  : calories < dailyCalorieGoal * 0.9
-                  ? 'bg-yellow-50 border-yellow-200'
-                  : 'bg-red-50 border-red-200'
-                : 'bg-gray-50 border-gray-200'
-            }`}>
-              <div className="h-full flex flex-col items-center justify-center space-y-1">
-                <div className={`font-bold text-sm ${
+    <div className="space-y-6">
+      {/* Vertical Day Layout */}
+      {days.map((day, dayIndex) => {
+        const calories = getDailyCalories(dayIndex)
+        const macros = getDailyMacros(dayIndex)
+        const dayOfWeek = (day.getDay() + 6) % 7 // Convert Sunday=0 to Monday=0
+        
+        return (
+          <Card key={day.toISOString()} className="overflow-hidden">
+            {/* Day Header */}
+            <div className="bg-gray-50 px-4 lg:px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg lg:text-xl font-semibold text-gray-900">
+                    <span className="lg:hidden">{shortDayNames[dayOfWeek]}</span>
+                    <span className="hidden lg:inline">{dayNames[dayOfWeek]}</span>
+                  </h3>
+                  <p className="text-sm text-gray-600">{format(day, 'MMM d, yyyy')}</p>
+                </div>
+                
+                {/* Daily Summary */}
+                <div className={`text-right ${
                   calories > 0 
                     ? calories >= dailyCalorieGoal * 0.9 && calories <= dailyCalorieGoal * 1.1
                       ? 'text-green-700'
@@ -133,52 +120,48 @@ export function WeeklyCalendar({ weekStart, displayDays = 7, mealsPerDay, mealPl
                       : 'text-red-700'
                     : 'text-gray-500'
                 }`}>
-                  {calories > 0 ? Math.round(calories) : '0'}
+                  <div className="text-lg lg:text-xl font-bold">
+                    {calories > 0 ? Math.round(calories) : '0'} kcal
+                  </div>
+                  {calories > 0 && (
+                    <div className="text-xs text-gray-500">
+                      {Math.round((calories / dailyCalorieGoal) * 100)}% of goal
+                    </div>
+                  )}
                 </div>
-                <div className="text-xs text-gray-500">kcal</div>
-                {calories > 0 && (
-                  <div className="text-xs text-gray-400">
-                    {Math.round((calories / dailyCalorieGoal) * 100)}%
-                  </div>
-                )}
-                {calories > 0 && (
-                  <div className="text-xs text-gray-600 space-y-0.5">
-                    <div>P: {Math.round(dailyMacros[index].protein)}g</div>
-                    <div>C: {Math.round(dailyMacros[index].carbs)}g</div>
-                    <div>F: {Math.round(dailyMacros[index].fat)}g</div>
-                  </div>
-                )}
               </div>
-            </Card>
-          </div>
-        ))}
-      </div>
-      {/* Meal Rows */}
-      <div className="space-y-3">
-        {mealTypes.map((mealType) => (
-          <div key={mealType.id} className={`grid gap-4 items-start`} style={{ gridTemplateColumns: `auto repeat(${displayDays}, 1fr)` }}>
-            {/* Meal Type Label */}
-            <div className="flex items-center justify-center h-20 bg-gray-50 rounded-lg">
-              <span className="font-medium text-gray-700 text-sm text-center">
-                {mealType.label}
-              </span>
+              
+              {/* Macros Summary - Mobile Compact */}
+              {calories > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>P: {Math.round(macros.protein)}g</span>
+                    <span>C: {Math.round(macros.carbs)}g</span>
+                    <span>F: {Math.round(macros.fat)}g</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Days */}
-            {days.map((day, index) => (
-              <MealSlot
-                key={`${day.toISOString()}-${mealType.id}`}
-                day={day}
-                dayIndex={index}
-                mealType={mealType}
-                mealPlan={mealPlan}
-                onMealSlotClick={onMealSlotClick}
-                onServingChange={onServingChange}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
+            {/* Meals for this day */}
+            <div className="p-4 lg:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                {mealTypes.map((mealType) => (
+                  <MealSlot
+                    key={`${day.toISOString()}-${mealType.id}`}
+                    day={day}
+                    dayIndex={dayIndex}
+                    mealType={mealType}
+                    mealPlan={mealPlan}
+                    onMealSlotClick={onMealSlotClick}
+                    onServingChange={onServingChange}
+                  />
+                ))}
+              </div>
+            </div>
+          </Card>
+        )
+      })}
     </div>
   )
 }
@@ -220,50 +203,53 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick, onServin
     
     return (
       <Card 
-        className="h-24 p-2 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer group relative"
+        className="p-4 bg-emerald-50 border-emerald-200 hover:shadow-md transition-shadow cursor-pointer group relative"
         onClick={() => onMealSlotClick?.(dayIndex, mealType.id, meal.recipe)}
       >
-        {/* Serving adjustment controls */}
-        <div className="absolute top-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        {/* Meal Type Label */}
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-emerald-700">{mealType.label}</span>
           <button
-            onClick={(e) => handleServingChange(e, -0.5)}
-            disabled={meal.servings <= 0.5}
-            className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Decrease serving"
+            onClick={handleSwapRecipe}
+            className="p-1 rounded-full bg-white shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
+            title="Swap recipe"
           >
-            <Minus className="h-2.5 w-2.5 text-gray-600" />
-          </button>
-          <button
-            onClick={(e) => handleServingChange(e, 0.5)}
-            disabled={meal.servings >= 5}
-            className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Increase serving"
-          >
-            <Plus className="h-2.5 w-2.5 text-gray-600" />
+            <RefreshCw className="h-3 w-3 text-gray-600" />
           </button>
         </div>
         
-        <button
-          onClick={handleSwapRecipe}
-          className="absolute top-1 right-1 p-1 rounded-full bg-white shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 z-10"
-          title="Swap recipe"
-        >
-          <RefreshCw className="h-3 w-3 text-gray-600" />
-        </button>
+        {/* Recipe Info */}
+        <div className="mb-3">
+          <h4 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
+            {meal.recipe.name}
+          </h4>
+          <div className="text-xs text-gray-600">
+            {totalCalories} cal
+          </div>
+        </div>
         
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex-1 min-h-0">
-            <h4 className="font-medium text-gray-900 text-xs leading-tight truncate">
-              {meal.recipe.name}
-            </h4>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-emerald-600 font-bold bg-white px-1 rounded">
-                {meal.servings}x
-              </span>
-              <span className="text-xs text-gray-500">
-                {totalCalories} cal
-              </span>
-            </div>
+        {/* Serving Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => handleServingChange(e, -0.5)}
+              disabled={meal.servings <= 0.5}
+              className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Decrease serving"
+            >
+              <Minus className="h-3 w-3 text-gray-600" />
+            </button>
+            <span className="text-sm font-medium text-emerald-600 min-w-[3rem] text-center">
+              {meal.servings}x
+            </span>
+            <button
+              onClick={(e) => handleServingChange(e, 0.5)}
+              disabled={meal.servings >= 5}
+              className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Increase serving"
+            >
+              <Plus className="h-3 w-3 text-gray-600" />
+            </button>
           </div>
         </div>
       </Card>
@@ -271,15 +257,17 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick, onServin
   }
 
   return (
-    <Card className="h-24 p-2 hover:shadow-md transition-shadow">
-      <div className="h-full flex items-center justify-center">
+    <Card className="p-4 hover:shadow-md transition-shadow">
+      <div className="text-center">
+        <div className="text-sm font-medium text-gray-700 mb-3">{mealType.label}</div>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleAddMeal}
-          className="w-full h-full border-2 border-dashed border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-gray-400 hover:text-emerald-600"
+          className="w-full border-2 border-dashed border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 py-6"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-5 w-5 mb-1" />
+          <div className="text-xs">Add meal</div>
         </Button>
       </div>
     </Card>
