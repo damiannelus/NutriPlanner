@@ -33,7 +33,7 @@ try {
   db = null
 }
 
-export { auth, db }
+export { app, auth, db }
 
 export type Database = {
   profiles: {

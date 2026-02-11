@@ -9,6 +9,8 @@ import { ProfileSettings } from './components/profile/ProfileSettings'
 import { WeeklyMealPlan } from './utils/mealPlanGenerator'
 import { useMealPlans } from './hooks/useMealPlans'
 import { format, startOfWeek, isSameDay } from 'date-fns'
+import QuickVibeOverlay from './components/QuickVibeOverlay'
+import { notificationService } from './lib/notificationService'
 
 function AppContent() {
   const { user, loading } = useAuth()
@@ -22,6 +24,52 @@ function AppContent() {
   const [currentWeek, setCurrentWeek] = useState(() => new Date())
   const [mealPlan, setMealPlan] = useState<WeeklyMealPlan>({})
   const [globalStartDate, setGlobalStartDate] = useState(() => new Date())
+  
+  // Quick-Vibe overlay state
+  const [isQuickVibeOpen, setIsQuickVibeOpen] = useState(false)
+  const [quickVibeMealId, setQuickVibeMealId] = useState<string | undefined>()
+
+  // Initialize notifications when user logs in
+  useEffect(() => {
+    if (user) {
+      const initNotifications = async () => {
+        try {
+          const token = await notificationService.initialize()
+          if (token && user.id) {
+            // Send token to backend for this user
+            await notificationService.sendTokenToServer(token, user.id)
+          }
+        } catch (error) {
+          console.error('Failed to initialize notifications:', error)
+        }
+      }
+      
+      initNotifications()
+    }
+  }, [user])
+
+  // Listen for service worker messages to open Quick-Vibe overlay
+  useEffect(() => {
+    const handleOpenQuickVibe = (event: Event) => {
+      const customEvent = event as CustomEvent
+      console.log('Opening Quick-Vibe overlay from notification', customEvent.detail)
+      setQuickVibeMealId(customEvent.detail?.mealId)
+      setIsQuickVibeOpen(true)
+    }
+
+    window.addEventListener('open-quick-vibe', handleOpenQuickVibe)
+    return () => window.removeEventListener('open-quick-vibe', handleOpenQuickVibe)
+  }, [])
+
+  // Check URL params for quick-vibe action
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('action') === 'quick-vibe') {
+      setIsQuickVibeOpen(true)
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -36,7 +84,8 @@ function AppContent() {
       // Prevent shortcuts when modals or forms are open
       if (document.querySelector('[role="dialog"]') || 
           document.querySelector('.modal') ||
-          selectedMealSlot) {
+          selectedMealSlot ||
+          isQuickVibeOpen) {
         return
       }
 
@@ -64,7 +113,7 @@ function AppContent() {
 
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
-  }, [selectedMealSlot])
+  }, [selectedMealSlot, isQuickVibeOpen])
 
   // Load meal plan for current week when week changes or data loads
   useEffect(() => {
@@ -186,6 +235,26 @@ function AppContent() {
     }
   }
 
+  // Handle mood submission
+  const handleMoodSubmit = async (moodData: any) => {
+    console.log('Mood data submitted:', moodData)
+    
+    // TODO: Save mood data to your database
+    // Example:
+    // await supabase.from('mood_tracking').insert({
+    //   user_id: user.id,
+    //   energy: moodData.energy,
+    //   mood: moodData.mood,
+    //   context: moodData.context,
+    //   notes: moodData.notes,
+    //   meal_id: moodData.mealId,
+    //   timestamp: moodData.timestamp
+    // })
+    
+    // For now, just log it
+    alert(`Mood tracked! Energy: ${moodData.energy}, Mood: ${moodData.mood}`)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <Navigation currentView={currentView} onViewChange={setCurrentView} />
@@ -196,6 +265,14 @@ function AppContent() {
           {renderView()}
         </main>
       </div>
+
+      {/* Quick-Vibe Overlay */}
+      <QuickVibeOverlay
+        isOpen={isQuickVibeOpen}
+        onClose={() => setIsQuickVibeOpen(false)}
+        onSubmit={handleMoodSubmit}
+        mealId={quickVibeMealId}
+      />
     </div>
   )
 }
