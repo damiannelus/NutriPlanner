@@ -48,45 +48,83 @@ A comprehensive full-stack meal planning application built with React, TypeScrip
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Firebase project with Firestore and Authentication enabled
+- **Node.js 18+** and npm ([Download](https://nodejs.org/))
+- **Firebase Account** (free tier is sufficient)
 
-### Installation
+### Quick Start (5 minutes)
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd nutrition-navigator
-   ```
-
-2. **Install dependencies**
+1. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Set up Firebase**
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
-   - Enable Firestore Database and Authentication (Email/Password)
-   - Get your Firebase configuration from Project Settings
+2. **Set up Firebase project**
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Click "Add project" and follow the wizard
+   - Once created, click "Web" (</>) to add a web app
+   - Copy the configuration values
 
-4. **Configure environment variables**
-   Create a `.env` file in the root directory:
+3. **Enable Firebase services**
+   - **Authentication**: Go to Build > Authentication > Get Started > Enable "Email/Password"
+   - **Firestore**: Go to Build > Firestore Database > Create Database > Start in test mode
+
+4. **Create environment file**
+   
+   Copy the example file and fill in your Firebase values:
+   
+   ```bash
+   # Copy the template
+   cp .env.example .env
+   
+   # Then edit .env with your Firebase config values
+   ```
+   
+   **Windows PowerShell**:
+   ```powershell
+   Copy-Item .env.example .env
+   notepad .env
+   ```
+   
+   Your `.env` file should look like:
    ```env
-   VITE_FIREBASE_API_KEY=your_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_API_KEY=AIzaSyC...
+   VITE_FIREBASE_AUTH_DOMAIN=myproject.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=myproject-12345
+   VITE_FIREBASE_STORAGE_BUCKET=myproject.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+   VITE_FIREBASE_APP_ID=1:123456789:web:abc123
    ```
 
-5. **Start the development server**
+5. **Start the app**
    ```bash
    npm run dev
    ```
+   
+   The app will open at `http://localhost:5173`
 
-6. **Open your browser**
-   Navigate to `http://localhost:5173`
+6. **First time setup**
+   - Sign up for a new account
+   - Complete your profile settings
+   - Click "Add Sample Recipes" to get started quickly
+   - Go to Meal Planning and generate your first plan!
+
+### Troubleshooting
+
+**App won't start or shows Firebase errors:**
+- Verify all environment variables in `.env` are correctly set (no quotes, no spaces)
+- Ensure Firebase Authentication and Firestore are enabled in your Firebase project
+- Check the browser console for specific error messages
+
+**Port 5173 already in use:**
+```bash
+# Vite will automatically use the next available port (5174, 5175, etc.)
+```
+
+**Permission errors on Windows:**
+```powershell
+# Run PowerShell as Administrator, then:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 ## Firebase Setup
 
