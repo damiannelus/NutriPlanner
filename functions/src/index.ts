@@ -74,28 +74,45 @@ export const registerNotificationToken = functions.https.onRequest(async (req, r
  */
 export const checkMealNotifications = functions.pubsub
   .schedule('*/30 * * * *') // Run every 30 minutes
-  .timeZone('America/New_York') // Adjust to your timezone
+  .timeZone('UTC') // Use UTC as base, convert to user timezones
   .onRun(async (context) => {
     console.log('Running meal notification check...');
 
     try {
-      const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentTime = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+      const nowUTC = new Date();
 
       // Get all active meal plans
       const mealPlansSnapshot = await admin.firestore()
         .collection('meal_plans')
-        .where('weekStart', '<=', now.toISOString())
+        .where('weekStart', '<=', nowUTC.toISOString())
         .get();
 
       const notifications: Array<{userId: string, mealId: string, mealType: string, recipeName?: string}> = [];
 
       // Check each meal plan for scheduled meals
-      mealPlansSnapshot.forEach((doc) => {
+      for (const doc of mealPlansSnapshot.docs) {
         const mealPlan = doc.data();
         const userId = mealPlan.userId;
+        
+        // Get user's timezone from their profile (default to UTC if not set)
+        let userTimezone = 'UTC';
+        try {
+          const userDoc = await admin.firestore()
+            .collection('profiles')
+            .doc(userId)
+            .get();
+          if (userDoc.exists) {
+            userTimezone = userDoc.data()?.timezone || 'UTC';
+          }
+        } catch (error) {
+          console.error(`Error fetching timezone for user ${userId}:`, error);
+        }
+
+        // Get current time in user's timezone
+        const userTime = new Date(nowUTC.toLocaleString('en-US', { timeZone: userTimezone }));
+        const currentHour = userTime.getHours();
+        const currentMinute = userTime.getMinutes();
+        const currentTime = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
         
         // Check each day in the meal plan
         Object.entries(mealPlan.days || {}).forEach(([dayIndex, dayMeals]: [string, any]) => {
@@ -116,7 +133,7 @@ export const checkMealNotifications = functions.pubsub
             }
           });
         });
-      });
+      }
 
       // Send notifications
       console.log(`Found ${notifications.length} notifications to send`);

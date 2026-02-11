@@ -208,7 +208,15 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick, onServin
       >
         {/* Meal Type Label */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-emerald-700">{mealType.label}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-emerald-700">{mealType.label}</span>
+            {meal.scheduledTime && (
+              <span className="flex items-center gap-1 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                {meal.scheduledTime}
+              </span>
+            )}
+          </div>
           <button
             onClick={handleSwapRecipe}
             className="p-1 rounded-full bg-white shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
@@ -259,7 +267,11 @@ function MealSlot({ day, dayIndex, mealType, mealPlan, onMealSlotClick, onServin
   return (
     <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="text-center">
-        <div className="text-sm font-medium text-gray-700 mb-3">{mealType.label}</div>
+        <div className="text-sm font-medium text-gray-700 mb-1">{mealType.label}</div>
+        <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mb-3">
+          <Clock className="h-3 w-3" />
+          {dayPlan?.[mealType.id as keyof typeof dayPlan]?.scheduledTime || 'Not scheduled'}
+        </div>
         <Button
           variant="ghost"
           size="sm"

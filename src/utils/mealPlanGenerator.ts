@@ -1,4 +1,5 @@
 import { Recipe, Profile } from '../types'
+import { getDefaultMealTime } from './mealTimes'
 
 // Meal calorie distribution by meals per day
 const MEAL_DISTRIBUTIONS = {
@@ -25,6 +26,7 @@ const MEAL_DISTRIBUTIONS = {
 export interface GeneratedMeal {
   recipe: Recipe
   servings: number
+  scheduledTime?: string // HH:mm format (e.g., "08:00", "12:30")
 }
 
 export interface DailyMealPlan {
@@ -112,6 +114,10 @@ function generateDailyMealPlan(
       )
       
       if (meal) {
+        // Add scheduled time if not present
+        if (!meal.scheduledTime) {
+          meal.scheduledTime = getDefaultMealTime(mealType)
+        }
         dailyPlan[mealType as keyof DailyMealPlan] = meal
         attemptUsedRecipes.add(meal.recipe.id)
         
@@ -137,6 +143,10 @@ function generateDailyMealPlan(
     const caloriesPerMeal = Math.round((targetCalories * mealPercentage) / 100)
     const meal = generateMealForSlotInternal(recipes, caloriesPerMeal, mealType, usedRecipesToday, profile)
     if (meal) {
+      // Add scheduled time if not present
+      if (!meal.scheduledTime) {
+        meal.scheduledTime = getDefaultMealTime(mealType)
+      }
       fallbackPlan[mealType as keyof DailyMealPlan] = meal
       usedRecipesToday.add(meal.recipe.id)
     }

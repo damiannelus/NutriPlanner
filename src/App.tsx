@@ -11,6 +11,10 @@ import { useMealPlans } from './hooks/useMealPlans'
 import { format, startOfWeek, isSameDay } from 'date-fns'
 import QuickVibeOverlay from './components/QuickVibeOverlay'
 import { notificationService } from './lib/notificationService'
+import { getUserTimezone } from './utils/timezone'
+import { getDefaultMealTime } from './utils/mealTimes'
+import { doc, setDoc } from 'firebase/firestore'
+import { db } from './lib/firebase'
 
 function AppContent() {
   const { user, loading } = useAuth()
@@ -29,22 +33,30 @@ function AppContent() {
   const [isQuickVibeOpen, setIsQuickVibeOpen] = useState(false)
   const [quickVibeMealId, setQuickVibeMealId] = useState<string | undefined>()
 
-  // Initialize notifications when user logs in
+  // Initialize notifications and save timezone when user logs in
   useEffect(() => {
-    if (user) {
-      const initNotifications = async () => {
+    if (user && db) {
+      const initUserSettings = async () => {
         try {
+          // Detect and save user's timezone
+          const timezone = getUserTimezone()
+          await setDoc(doc(db, 'profiles', user.id), {
+            timezone,
+            timezoneUpdatedAt: new Date().toISOString()
+          }, { merge: true })
+          console.log(`Saved user timezone: ${timezone}`)
+
+          // Initialize notifications
           const token = await notificationService.initialize()
           if (token && user.id) {
-            // Send token to backend for this user
             await notificationService.sendTokenToServer(token, user.id)
           }
         } catch (error) {
-          console.error('Failed to initialize notifications:', error)
+          console.error('Failed to initialize user settings:', error)
         }
       }
       
-      initNotifications()
+      initUserSettings()
     }
   }, [user])
 
@@ -188,7 +200,8 @@ function AppContent() {
         ...prev[dayIndex],
         [mealType]: {
           recipe,
-          servings
+          servings,
+          scheduledTime: prev[dayIndex]?.[mealType]?.scheduledTime || getDefaultMealTime(mealType)
         }
       }
     }))
