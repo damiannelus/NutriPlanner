@@ -5,14 +5,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 // Initialize Firebase in the service worker
-// TODO: Replace with your actual Firebase config
 firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCfTjhK9AZ5N_uLl_q7JnONWekzbRfHbvI",
+  authDomain: "meal-planner-305e6.firebaseapp.com",
+  projectId: "meal-planner-305e6",
+  storageBucket: "meal-planner-305e6.firebasestorage.app",
+  messagingSenderId: "415053529219",
+  appId: "1:415053529219:web:6829c455282c8e25fd9bb6"
 });
 
 const messaging = firebase.messaging();
