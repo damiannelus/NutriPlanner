@@ -36,6 +36,28 @@ export async function registerFirebaseMessagingServiceWorker() {
   }
 }
 
+// Set up service worker message listener immediately
+function setupServiceWorkerMessageListener() {
+  console.log('[SW Register] Setting up service worker message listener');
+  
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    console.log('[SW Register] Received message from service worker:', event.data);
+    
+    if (event.data && event.data.type === 'OPEN_QUICK_VIBE') {
+      console.log('[SW Register] OPEN_QUICK_VIBE message received, dispatching custom event');
+      // Dispatch custom event to open Quick-Vibe overlay
+      window.dispatchEvent(new CustomEvent('open-quick-vibe', {
+        detail: event.data.data
+      }));
+    }
+  });
+}
+
 // Auto-register when this module is imported
 console.log('[SW Register] Module loaded, registering service worker...');
+setupServiceWorkerMessageListener();
 registerFirebaseMessagingServiceWorker();
