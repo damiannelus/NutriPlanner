@@ -35,11 +35,13 @@ function AppContent() {
 
   // Initialize notifications and save timezone when user logs in
   useEffect(() => {
-    if (user && db) {
+    if (user && user.id && db) {
       const initUserSettings = async () => {
         try {
           // Detect and save user's timezone
           const timezone = getUserTimezone()
+          console.log(`Detected timezone: ${timezone}`)
+          
           await setDoc(doc(db, 'profiles', user.id), {
             timezone,
             timezoneUpdatedAt: new Date().toISOString()
@@ -62,15 +64,21 @@ function AppContent() {
 
   // Listen for service worker messages to open Quick-Vibe overlay
   useEffect(() => {
+    console.log('[App] Setting up open-quick-vibe event listener')
+    
     const handleOpenQuickVibe = (event: Event) => {
       const customEvent = event as CustomEvent
-      console.log('Opening Quick-Vibe overlay from notification', customEvent.detail)
+      console.log('[App] Received open-quick-vibe event!', customEvent.detail)
       setQuickVibeMealId(customEvent.detail?.mealId)
       setIsQuickVibeOpen(true)
     }
 
     window.addEventListener('open-quick-vibe', handleOpenQuickVibe)
-    return () => window.removeEventListener('open-quick-vibe', handleOpenQuickVibe)
+    
+    return () => {
+      console.log('[App] Removing open-quick-vibe event listener')
+      window.removeEventListener('open-quick-vibe', handleOpenQuickVibe)
+    }
   }, [])
 
   // Check URL params for quick-vibe action

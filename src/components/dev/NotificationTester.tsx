@@ -124,6 +124,23 @@ export function NotificationTester() {
     window.location.href = '/?action=quick-vibe';
   };
 
+  const testMessagePassing = () => {
+    console.log('[NotificationTester] Testing message passing...');
+    // Simulate what the service worker does
+    window.dispatchEvent(new CustomEvent('open-quick-vibe', {
+      detail: {
+        mealId: 'test_meal_123',
+        timestamp: Date.now()
+      }
+    }));
+    setStatus('success');
+    setMessage('Test event dispatched! Check if Quick-Vibe opened.');
+    setTimeout(() => {
+      setStatus('idle');
+      setMessage('');
+    }, 5000);
+  };
+
   return (
     <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4">
       <div className="flex items-center gap-2">
@@ -161,6 +178,14 @@ export function NotificationTester() {
           size="sm"
         >
           Refresh Status
+        </Button>
+
+        <Button
+          onClick={testMessagePassing}
+          variant="outline"
+          size="sm"
+        >
+          Test Message Passing
         </Button>
       </div>
 

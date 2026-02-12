@@ -133,14 +133,16 @@ export class NotificationService {
       return null;
     }
 
+    // ALWAYS setup service worker message listener
+    // This is critical for notification clicks to work
+    this.setupServiceWorkerMessageListener();
+
     try {
       const token = await this.getFCMToken();
       
       if (token) {
         // Setup foreground message handler
         this.setupForegroundMessageHandler();
-        // Setup service worker message listener
-        this.setupServiceWorkerMessageListener();
       }
 
       return token;
@@ -179,8 +181,13 @@ export class NotificationService {
    * Listen for messages from service worker
    */
   private setupServiceWorkerMessageListener() {
+    console.log('[NotificationService] Setting up service worker message listener');
+    
     navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('[NotificationService] Received message from service worker:', event.data);
+      
       if (event.data && event.data.type === 'OPEN_QUICK_VIBE') {
+        console.log('[NotificationService] OPEN_QUICK_VIBE message received, dispatching custom event');
         // Dispatch custom event to open Quick-Vibe overlay
         window.dispatchEvent(new CustomEvent('open-quick-vibe', {
           detail: event.data.data
