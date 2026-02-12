@@ -154,6 +154,14 @@ export function NotificationTester() {
         >
           Open Quick-Vibe Directly
         </Button>
+
+        <Button
+          onClick={checkDiagnostics}
+          variant="outline"
+          size="sm"
+        >
+          Refresh Status
+        </Button>
       </div>
 
       {/* Diagnostics Panel */}
@@ -217,10 +225,26 @@ export function NotificationTester() {
         </p>
         <ol className="text-xs text-blue-700 mt-2 space-y-1 ml-4 list-decimal">
           <li>Click "Send Test Notification"</li>
-          <li>Check your browser's notification tray</li>
+          <li>Check your browser's notification tray or system notification center</li>
           <li>Click the notification</li>
           <li>Quick-Vibe overlay should open</li>
         </ol>
+      </div>
+
+      <div className="mt-4 p-3 bg-yellow-50 rounded-md border border-yellow-200">
+        <p className="text-xs text-yellow-900 font-semibold mb-2">
+          ⚠️ Notification Not Showing?
+        </p>
+        <ul className="text-xs text-yellow-800 space-y-1 ml-4 list-disc">
+          <li><strong>Windows:</strong> Check Settings → System → Notifications. Ensure "Do Not Disturb" and "Focus Assist" are OFF</li>
+          <li><strong>Browser:</strong> Click the lock icon in address bar → Check "Notifications" is set to "Allow"</li>
+          <li><strong>Chrome:</strong> Go to <code className="bg-yellow-100 px-1 rounded">chrome://settings/content/notifications</code> and disable "Use quieter messaging"</li>
+          <li><strong>Edge:</strong> Go to <code className="bg-yellow-100 px-1 rounded">edge://settings/content/notifications</code> and disable "Use quieter messaging"</li>
+          <li>Try opening browser DevTools (F12) and check the Console for errors</li>
+        </ul>
+        <p className="text-xs text-yellow-800 mt-2">
+          See <strong>NOTIFICATION_TROUBLESHOOTING.md</strong> for detailed guide
+        </p>
       </div>
     </div>
   );
