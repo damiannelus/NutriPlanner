@@ -258,22 +258,38 @@ function AppContent() {
 
   // Handle mood submission
   const handleMoodSubmit = async (moodData: any) => {
-    console.log('Mood data submitted:', moodData)
-    
-    // TODO: Save mood data to your database
-    // Example:
-    // await supabase.from('mood_tracking').insert({
-    //   user_id: user.id,
-    //   energy: moodData.energy,
-    //   mood: moodData.mood,
-    //   context: moodData.context,
-    //   notes: moodData.notes,
-    //   meal_id: moodData.mealId,
-    //   timestamp: moodData.timestamp
-    // })
-    
-    // For now, just log it
-    alert(`Mood tracked! Energy: ${moodData.energy}, Mood: ${moodData.mood}`)
+    if (!user || !db) {
+      console.error('User or database not available')
+      return
+    }
+
+    try {
+      console.log('Saving mood data to Firestore:', moodData)
+      
+      // Create mood tracking document
+      const moodDoc = {
+        user_id: user.id,
+        energy: moodData.energy,
+        mood: moodData.mood,
+        context: moodData.context || [],
+        notes: moodData.notes || '',
+        meal_id: moodData.mealId || null,
+        timestamp: moodData.timestamp || new Date().toISOString(),
+        created_at: new Date().toISOString()
+      }
+
+      // Save to 'mood_tracking' collection
+      const { collection, addDoc } = await import('firebase/firestore')
+      const moodRef = await addDoc(collection(db, 'mood_tracking'), moodDoc)
+      
+      console.log('Mood data saved successfully with ID:', moodRef.id)
+      
+      // Show success message
+      alert(`✓ Mood tracked! Energy: ${moodData.energy}, Mood: ${moodData.mood}`)
+    } catch (error) {
+      console.error('Error saving mood data:', error)
+      alert('Failed to save mood data. Please try again.')
+    }
   }
 
   return (

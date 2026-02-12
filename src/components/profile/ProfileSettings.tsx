@@ -11,6 +11,7 @@ import { X, Plus, Clock } from 'lucide-react'
 import { Recipe } from '../../types'
 import { DEFAULT_MEAL_TIMES } from '../../utils/mealTimes'
 import { NotificationTester } from '../dev/NotificationTester'
+import { MoodTrackingSection } from './MoodTrackingSection'
 
 interface ProfileFormData {
   full_name: string
@@ -201,6 +202,9 @@ export function ProfileSettings() {
         <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
         <p className="text-gray-600">Manage your account and nutrition preferences</p>
       </div>
+
+      {/* Mood Tracking Section */}
+      {user && <MoodTrackingSection userId={user.id} />}
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
