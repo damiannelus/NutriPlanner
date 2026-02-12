@@ -7,10 +7,10 @@ export interface MoodEntry {
   user_id: string;
   energy: number;
   mood: string;
-  context: string[];
+  context: string | string[]; // Can be string or array
   notes: string;
   meal_id: string | null;
-  timestamp: string;
+  timestamp: string | number; // Can be ISO string or milliseconds
   created_at: string;
 }
 
@@ -30,27 +30,59 @@ export function useMoodTracking(userId: string | undefined, days: number = 7) {
         setLoading(true);
         setError(null);
 
+        console.log('[useMoodTracking] Fetching mood entries for user:', userId);
+
+        // First, try to get ALL documents for this user (without date filter)
+        console.log('[useMoodTracking] Testing simple query without date filter...');
+        const simpleQuery = query(
+          collection(db, 'mood_tracking'),
+          where('user_id', '==', userId)
+        );
+        const simpleSnapshot = await getDocs(simpleQuery);
+        console.log('[useMoodTracking] Simple query returned', simpleSnapshot.size, 'documents');
+        
+        if (simpleSnapshot.size > 0) {
+          simpleSnapshot.docs.forEach(doc => {
+            console.log('[useMoodTracking] Found document:', doc.id, doc.data());
+          });
+        }
+
         // Calculate date range (last N days)
         const daysAgo = new Date();
         daysAgo.setDate(daysAgo.getDate() - days);
+        const dateThresholdMs = daysAgo.getTime(); // Get milliseconds instead of ISO string
+
+        console.log('[useMoodTracking] Date threshold (ms):', dateThresholdMs, 'which is', daysAgo.toISOString());
 
         const moodQuery = query(
           collection(db, 'mood_tracking'),
           where('user_id', '==', userId),
-          where('timestamp', '>=', daysAgo.toISOString()),
+          where('timestamp', '>=', dateThresholdMs),
           orderBy('timestamp', 'desc')
         );
 
+        console.log('[useMoodTracking] Executing filtered query...');
         const snapshot = await getDocs(moodQuery);
-        const entries: MoodEntry[] = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as MoodEntry));
+        console.log('[useMoodTracking] Query returned', snapshot.size, 'documents');
+        
+        const entries: MoodEntry[] = snapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log('[useMoodTracking] Document:', doc.id, data);
+          return {
+            id: doc.id,
+            ...data
+          } as MoodEntry;
+        });
 
-        console.log(`Loaded ${entries.length} mood entries for last ${days} days`);
+        console.log(`[useMoodTracking] ✓ Loaded ${entries.length} mood entries for last ${days} days`);
         setMoodEntries(entries);
       } catch (err) {
-        console.error('Error fetching mood entries:', err);
+        console.error('[useMoodTracking] ✗ Error fetching mood entries:', err);
+        console.error('[useMoodTracking] Error details:', {
+          message: err instanceof Error ? err.message : String(err),
+          code: (err as any)?.code,
+          details: (err as any)?.details
+        });
         setError(err instanceof Error ? err.message : 'Failed to load mood data');
       } finally {
         setLoading(false);

@@ -196,6 +196,8 @@ export function ProfileSettings() {
     )
   }
   
+  console.log('[ProfileSettings] Rendering profile page. Profile:', profile ? { id: profile.id, email: profile.email } : 'null');
+
   return (
     <div className="space-y-6">
       <div>
@@ -204,7 +206,14 @@ export function ProfileSettings() {
       </div>
 
       {/* Mood Tracking Section */}
-      {user && <MoodTrackingSection userId={user.id} />}
+      {profile ? (
+        <>
+          {console.log('[ProfileSettings] Rendering MoodTrackingSection with userId:', profile.id)}
+          <MoodTrackingSection userId={profile.id} />
+        </>
+      ) : (
+        <div>Loading profile...</div>
+      )}
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -35,14 +35,14 @@ function AppContent() {
 
   // Initialize notifications and save timezone when user logs in
   useEffect(() => {
-    if (user && user.id && db) {
+    if (user && user.uid && db) {
       const initUserSettings = async () => {
         try {
           // Detect and save user's timezone
           const timezone = getUserTimezone()
           console.log(`Detected timezone: ${timezone}`)
           
-          await setDoc(doc(db, 'profiles', user.id), {
+          await setDoc(doc(db, 'profiles', user.uid), {
             timezone,
             timezoneUpdatedAt: new Date().toISOString()
           }, { merge: true })
@@ -50,8 +50,8 @@ function AppContent() {
 
           // Initialize notifications
           const token = await notificationService.initialize()
-          if (token && user.id) {
-            await notificationService.sendTokenToServer(token, user.id)
+          if (token && user.uid) {
+            await notificationService.sendTokenToServer(token, user.uid)
           }
         } catch (error) {
           console.error('Failed to initialize user settings:', error)
@@ -258,17 +258,33 @@ function AppContent() {
 
   // Handle mood submission
   const handleMoodSubmit = async (moodData: any) => {
-    if (!user || !db) {
-      console.error('User or database not available')
+    console.log('[App] handleMoodSubmit called with data:', moodData)
+    
+    if (!user) {
+      console.error('[App] No user found')
+      alert('You must be logged in to track mood')
+      return
+    }
+    
+    if (!user.uid) {
+      console.error('[App] User UID is missing')
+      alert('User UID not available')
+      return
+    }
+
+    if (!db) {
+      console.error('[App] Database not available')
+      alert('Database connection not available')
       return
     }
 
     try {
-      console.log('Saving mood data to Firestore:', moodData)
+      console.log('[App] User UID:', user.uid)
+      console.log('[App] Saving mood data to Firestore...')
       
       // Create mood tracking document
       const moodDoc = {
-        user_id: user.id,
+        user_id: user.uid,
         energy: moodData.energy,
         mood: moodData.mood,
         context: moodData.context || [],
@@ -278,17 +294,27 @@ function AppContent() {
         created_at: new Date().toISOString()
       }
 
+      console.log('[App] Mood document to save:', moodDoc)
+
       // Save to 'mood_tracking' collection
       const { collection, addDoc } = await import('firebase/firestore')
       const moodRef = await addDoc(collection(db, 'mood_tracking'), moodDoc)
       
-      console.log('Mood data saved successfully with ID:', moodRef.id)
+      console.log('[App] ✓ Mood data saved successfully with ID:', moodRef.id)
       
       // Show success message
       alert(`✓ Mood tracked! Energy: ${moodData.energy}, Mood: ${moodData.mood}`)
+      
+      // Close the overlay
+      setIsQuickVibeOpen(false)
     } catch (error) {
-      console.error('Error saving mood data:', error)
-      alert('Failed to save mood data. Please try again.')
+      console.error('[App] ✗ Error saving mood data:', error)
+      console.error('[App] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      alert(`Failed to save mood data: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 

@@ -236,8 +236,13 @@ export class NotificationService {
    */
   async sendTokenToServer(token: string, userId: string): Promise<boolean> {
     try {
-      // TODO: Replace with your actual API endpoint
-      const response = await fetch('/api/notifications/register', {
+      // Use Firebase Cloud Function for token registration
+      // Update this URL with your actual Cloud Function URL
+      const apiUrl = import.meta.env.VITE_NOTIFICATION_API_URL || 'https://us-central1-meal-planner-305e6.cloudfunctions.net/registerNotificationToken';
+      
+      console.log('[NotificationService] Registering token with server...');
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -251,13 +256,16 @@ export class NotificationService {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send token to server');
+        console.warn('[NotificationService] Failed to register token with server (non-critical):', response.status);
+        // Don't throw error - this is non-critical
+        return false;
       }
 
-      console.log('FCM token registered with server');
+      console.log('[NotificationService] ✓ FCM token registered with server');
       return true;
     } catch (error) {
-      console.error('Error sending token to server:', error);
+      // Silently fail - token registration is optional
+      console.warn('[NotificationService] Could not register token with server (non-critical):', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   }

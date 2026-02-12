@@ -78,13 +78,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (profileDoc.exists()) {
         const data = profileDoc.data()
         setProfile({
-          id: data.id,
+          id: userId, // Use the document ID, not data.id
           email: data.email,
           full_name: data.full_name,
           daily_calorie_goal: data.daily_calorie_goal || 2000,
           meals_per_day: data.meals_per_day || 3,
           display_days: data.display_days || 7,
           default_recipes: data.default_recipes || {},
+          meal_times: data.meal_times || {},
           created_at: data.created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
           updated_at: data.updated_at?.toDate?.()?.toISOString() || new Date().toISOString()
         })

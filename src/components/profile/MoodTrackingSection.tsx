@@ -95,14 +95,14 @@ export function MoodTrackingSection({ userId }: MoodTrackingSectionProps) {
                       Energy: {entry.energy}/10
                     </span>
                     <span className="text-xs text-gray-500">
-                      {format(parseISO(entry.timestamp), 'MMM d, h:mm a')}
+                      {format(new Date(typeof entry.timestamp === 'number' ? entry.timestamp : entry.timestamp), 'MMM d, h:mm a')}
                     </span>
                   </div>
                   
                   {/* Context Tags */}
-                  {entry.context && entry.context.length > 0 && (
+                  {entry.context && (
                     <div className="flex flex-wrap gap-1 mb-1">
-                      {entry.context.map((tag, idx) => (
+                      {(Array.isArray(entry.context) ? entry.context : [entry.context]).map((tag, idx) => (
                         <span
                           key={idx}
                           className="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full"
