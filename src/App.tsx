@@ -17,7 +17,7 @@ import { doc, setDoc } from 'firebase/firestore'
 import { db } from './lib/firebase'
 
 function AppContent() {
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const { saveMealPlan, getMealPlanForWeek, loading: mealPlansLoading } = useMealPlans()
   const [currentView, setCurrentView] = useState('recipes')
   const [selectedMealSlot, setSelectedMealSlot] = useState<{
@@ -201,7 +201,7 @@ function AppContent() {
         [mealType]: {
           recipe,
           servings,
-          scheduledTime: prev[dayIndex]?.[mealType]?.scheduledTime || getDefaultMealTime(mealType)
+          scheduledTime: prev[dayIndex]?.[mealType]?.scheduledTime || getDefaultMealTime(mealType, profile?.meal_times)
         }
       }
     }))

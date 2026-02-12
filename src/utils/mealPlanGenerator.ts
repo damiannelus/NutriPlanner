@@ -116,7 +116,7 @@ function generateDailyMealPlan(
       if (meal) {
         // Add scheduled time if not present
         if (!meal.scheduledTime) {
-          meal.scheduledTime = getDefaultMealTime(mealType)
+          meal.scheduledTime = getDefaultMealTime(mealType, profile?.meal_times)
         }
         dailyPlan[mealType as keyof DailyMealPlan] = meal
         attemptUsedRecipes.add(meal.recipe.id)
@@ -145,7 +145,7 @@ function generateDailyMealPlan(
     if (meal) {
       // Add scheduled time if not present
       if (!meal.scheduledTime) {
-        meal.scheduledTime = getDefaultMealTime(mealType)
+        meal.scheduledTime = getDefaultMealTime(mealType, profile?.meal_times)
       }
       fallbackPlan[mealType as keyof DailyMealPlan] = meal
       usedRecipesToday.add(meal.recipe.id)

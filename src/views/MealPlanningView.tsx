@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format, startOfWeek, addDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Sparkles, Trash2, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, Trash2, Plus, Download } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useRecipes } from '../hooks/useRecipes'
 import { useMealPlans } from '../hooks/useMealPlans'
@@ -11,6 +11,7 @@ import { generateWeeklyMealPlan, generateMealForSlot, type WeeklyMealPlan } from
 import { RecipeDetails } from '../components/recipes/RecipeDetails'
 import { RecipesView } from './RecipesView'
 import { Recipe } from '../types'
+import { exportMealPlanToJSON } from '../utils/exportMealPlan'
 
 interface MealPlanningViewProps {
   mealPlan: WeeklyMealPlan
@@ -225,6 +226,11 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
     })
   }
 
+  const handleExportToJSON = () => {
+    if (!profile) return
+    exportMealPlanToJSON(mealPlan, currentWeek, displayDays, profile)
+  }
+
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -284,6 +290,15 @@ export function MealPlanningView({ mealPlan, setMealPlan, currentWeek, setCurren
           >
             <Plus className="h-4 w-4 mr-2" />
             Fill Empty Slots
+          </Button>
+          <Button
+            onClick={handleExportToJSON}
+            disabled={Object.keys(mealPlan).length === 0}
+            variant="outline"
+            className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 hover:border-emerald-400"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export to JSON
           </Button>
           <Button 
             onClick={clearMealPlan} 

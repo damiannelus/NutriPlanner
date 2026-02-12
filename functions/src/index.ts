@@ -1,16 +1,7 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 
 admin.initializeApp();
-
-interface MealPlan {
-  userId: string;
-  dayIndex: number;
-  mealType: string;
-  scheduledTime: string; // HH:mm format
-  recipeId?: string;
-  recipeName?: string;
-}
 
 interface NotificationToken {
   userId: string;
@@ -73,9 +64,9 @@ export const registerNotificationToken = functions.https.onRequest(async (req, r
  * Triggered by Cloud Scheduler
  */
 export const checkMealNotifications = functions.pubsub
-  .schedule('*/30 * * * *') // Run every 30 minutes
-  .timeZone('UTC') // Use UTC as base, convert to user timezones
-  .onRun(async (context) => {
+  .schedule('every 30 minutes')
+  .timeZone('UTC')
+  .onRun(async () => {
     console.log('Running meal notification check...');
 
     try {
@@ -115,11 +106,12 @@ export const checkMealNotifications = functions.pubsub
         const currentTime = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
         
         // Check each day in the meal plan
-        Object.entries(mealPlan.days || {}).forEach(([dayIndex, dayMeals]: [string, any]) => {
-          Object.entries(dayMeals || {}).forEach(([mealType, meal]: [string, any]) => {
+        Object.entries(mealPlan.days || {}).forEach(([dayIndex, dayMeals]) => {
+          // @ts-ignore - Dynamic meal plan structure
+          Object.entries(dayMeals as Record<string, any>).forEach(([mealType, meal]) => {
             if (meal && meal.scheduledTime) {
               // Calculate notification time (30-60 minutes after scheduled meal time)
-              const notificationTime = calculateNotificationTime(meal.scheduledTime, 45); // 45 min after
+              const notificationTime = calculateNotificationTime(meal.scheduledTime as string, 45); // 45 min after
               
               // Check if it's time to send notification (within 5-minute window)
               if (isTimeMatch(currentTime, notificationTime, 5)) {

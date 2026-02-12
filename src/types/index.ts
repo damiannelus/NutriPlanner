@@ -40,6 +40,14 @@ export interface Profile {
     dinner?: string
     snack?: string
   }
+  meal_times?: {
+    breakfast?: string
+    brunch?: string
+    lunch?: string
+    afternoon_snack?: string
+    dinner?: string
+    snack?: string
+  }
   created_at: string
   updated_at: string
 }

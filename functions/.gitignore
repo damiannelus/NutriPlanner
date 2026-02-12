@@ -1,19 +1,10 @@
 # Compiled JavaScript files
-lib/
-*.js
-*.js.map
+lib/**/*.js
+lib/**/*.js.map
 
-# TypeScript cache
-*.tsbuildinfo
+# TypeScript v1 declaration files
+typings/
 
-# Node.js
+# Node.js dependency directory
 node_modules/
-npm-debug.log
-yarn-error.log
-
-# Firebase
-.firebase/
-
-# Environment
-.env
-.env.local
+*.local

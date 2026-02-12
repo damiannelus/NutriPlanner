@@ -91,14 +91,13 @@ export default function QuickVibeOverlay({
 
           {/* Overlay Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-x-4 top-1/2 -translate-y-1/2 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-md bg-white rounded-2xl shadow-2xl z-50 overflow-hidden"
-          >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4 text-white">
+            className="fixed top-4 left-4 right-4 bottom-4 md:top-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-md md:max-h-[90vh] bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
+            {/* Header - Fixed */}
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4 text-white flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold">Quick Vibe Check</h2>
@@ -114,8 +113,8 @@ export default function QuickVibeOverlay({
               </div>
             </div>
 
-            {/* Content */}
-            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+            {/* Content - Scrollable */}
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               {/* Energy Slider */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -197,14 +196,14 @@ export default function QuickVibeOverlay({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Any additional thoughts..."
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none text-sm"
                 />
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+            {/* Footer - Fixed */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3 flex-shrink-0">
               <button
                 onClick={onClose}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"

@@ -12,8 +12,14 @@ export const DEFAULT_MEAL_TIMES: Record<string, string> = {
 
 /**
  * Get default scheduled time for a meal type
+ * Can optionally check user's custom meal times from profile
  */
-export function getDefaultMealTime(mealType: string): string {
+export function getDefaultMealTime(mealType: string, userMealTimes?: Record<string, string>): string {
+  // First check user's custom times
+  if (userMealTimes && userMealTimes[mealType]) {
+    return userMealTimes[mealType];
+  }
+  // Fall back to default times
   return DEFAULT_MEAL_TIMES[mealType] || '12:00';
 }
 

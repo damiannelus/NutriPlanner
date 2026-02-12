@@ -7,8 +7,10 @@ import { RecipesView } from '../../views/RecipesView'
 import { Card } from '../ui/Card'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Clock } from 'lucide-react'
 import { Recipe } from '../../types'
+import { DEFAULT_MEAL_TIMES } from '../../utils/mealTimes'
+import { NotificationTester } from '../dev/NotificationTester'
 
 interface ProfileFormData {
   full_name: string
@@ -19,6 +21,14 @@ interface ProfileFormData {
     breakfast?: string
     brunch?: string
     lunch?: string
+    dinner?: string
+    snack?: string
+  }
+  meal_times: {
+    breakfast?: string
+    brunch?: string
+    lunch?: string
+    afternoon_snack?: string
     dinner?: string
     snack?: string
   }
@@ -54,17 +64,18 @@ export function ProfileSettings() {
   const [showRecipeSelection, setShowRecipeSelection] = useState(false)
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null)
   
-  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       full_name: profile?.full_name || '',
       daily_calorie_goal: profile?.daily_calorie_goal || 2000,
       meals_per_day: profile?.meals_per_day || 3,
       display_days: profile?.display_days || 7,
-      default_recipes: profile?.default_recipes || {}
+      default_recipes: profile?.default_recipes || {},
+      meal_times: profile?.meal_times || DEFAULT_MEAL_TIMES
     }
   })
 
-  // Reset form when profile changes (including default_recipes)
+  // Reset form when profile changes (including default_recipes and meal_times)
   useEffect(() => {
     if (profile) {
       reset({
@@ -72,7 +83,8 @@ export function ProfileSettings() {
         daily_calorie_goal: profile.daily_calorie_goal,
         meals_per_day: profile.meals_per_day,
         display_days: profile.display_days,
-        default_recipes: profile.default_recipes || {}
+        default_recipes: profile.default_recipes || {},
+        meal_times: profile.meal_times || DEFAULT_MEAL_TIMES
       })
     }
   }, [profile, reset])
@@ -81,6 +93,7 @@ export function ProfileSettings() {
   const watchedMealsPerDay = watch('meals_per_day')
   const watchedCalorieGoal = watch('daily_calorie_goal')
   const watchedDefaultRecipes = watch('default_recipes')
+  const watchedMealTimes = watch('meal_times')
 
   const setDefaultRecipe = (mealType: string, recipeId: string | undefined) => {
     const currentDefaults = watchedDefaultRecipes || {}
@@ -260,6 +273,43 @@ export function ProfileSettings() {
             </div>
           )}
 
+          {/* Meal Times Section */}
+          <div className="bg-emerald-50 rounded-lg p-6">
+            <h4 className="font-medium text-emerald-900 mb-4 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Meal Times
+            </h4>
+            <p className="text-sm text-emerald-700 mb-6">
+              Set your preferred meal times. Notifications will be sent 45 minutes after each meal.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {['breakfast', 'brunch', 'lunch', 'afternoon_snack', 'dinner', 'snack'].map((mealType) => {
+                const displayName = mealType === 'afternoon_snack' ? 'Afternoon Snack' : mealType.charAt(0).toUpperCase() + mealType.slice(1)
+                const fieldName = `meal_times.${mealType}` as const
+                
+                return (
+                  <div key={mealType} className="bg-white rounded-md p-3 border border-emerald-200">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+                      {displayName}
+                    </label>
+                    <input
+                      type="time"
+                      {...register(fieldName)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            
+            <div className="mt-4 p-3 bg-emerald-100 rounded-md">
+              <p className="text-xs text-emerald-800">
+                💡 <strong>Tip:</strong> You'll receive mood tracking notifications 45 minutes after each scheduled meal.
+              </p>
+            </div>
+          </div>
+
           {/* Default Recipes Section */}
           <div className="bg-purple-50 rounded-lg p-6">
             <h4 className="font-medium text-purple-900 mb-4">Default Recipes</h4>
@@ -320,6 +370,11 @@ export function ProfileSettings() {
             Save Changes
           </Button>
         </form>
+      </Card>
+
+      {/* Notification Testing - Dev Only */}
+      <Card className="p-6">
+        <NotificationTester />
       </Card>
 
       <Card className="p-6">
