@@ -77,10 +77,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (profileDoc.exists()) {
         const data = profileDoc.data()
-        setProfile({
+        
+        const loadedProfile = {
           id: userId, // Use the document ID, not data.id
-          email: data.email,
-          full_name: data.full_name,
+          email: data.email || auth.currentUser?.email || '',
+          full_name: data.full_name || auth.currentUser?.displayName || '',
           daily_calorie_goal: data.daily_calorie_goal || 2000,
           meals_per_day: data.meals_per_day || 3,
           display_days: data.display_days || 7,
@@ -88,7 +89,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
           meal_times: data.meal_times || {},
           created_at: data.created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
           updated_at: data.updated_at?.toDate?.()?.toISOString() || new Date().toISOString()
-        })
+        }
+        
+        // If daily_calorie_goal was missing, update Firestore
+        if (!data.daily_calorie_goal) {
+          console.log('[AuthContext] Fixing missing daily_calorie_goal in Firestore');
+          await updateDoc(doc(db, 'profiles', userId), {
+            daily_calorie_goal: 2000,
+            updated_at: serverTimestamp()
+          });
+        }
+        
+        setProfile(loadedProfile)
       } else {
         // Profile doesn't exist, create it
         const user = auth.currentUser
@@ -138,12 +150,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateUserProfile = async (updates: Partial<Profile>) => {
     if (!user || !db) return
 
+    console.log('[AuthContext] Updating profile with:', updates);
+
+    // Remove fields that shouldn't be saved to Firestore
+    const { id, email, created_at, ...safeUpdates } = updates;
+
     await updateDoc(doc(db, 'profiles', user.uid), {
-      ...updates,
+      ...safeUpdates,
       updated_at: serverTimestamp()
     })
 
-    setProfile(prev => prev ? { ...prev, ...updates } : null)
+    console.log('[AuthContext] Profile updated successfully');
+    setProfile(prev => prev ? { ...prev, ...updates, updated_at: new Date().toISOString() } : null)
   }
 
   const value = {
